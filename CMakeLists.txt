@@ -8,14 +8,18 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
-qt_add_executable(UniversalConverter src/main.cpp)
+qt_add_executable(UniversalConverter 
+    src/main.cpp
+    src/MainWindow.cpp
+    src/SourcePanel.cpp
+)
 
 target_link_libraries(UniversalConverter PRIVATE Qt6::Core Qt6::Widgets)
 
 if(WIN32)
-    set_target_properties(UniversalConverter PROPERTIES WIN32_EXECUTABLE ON)
-    add_custom_command(TARGET UniversalConverter POST_BUILD
-        COMMAND ${Qt6_DIR}/../../../bin/windeployqt.exe
-        "$<TARGET_FILE:UniversalConverter>"
-    )
+    # set_target_properties(UniversalConverter PROPERTIES WIN32_EXECUTABLE ON)
+    # add_custom_command(TARGET UniversalConverter POST_BUILD
+    #     COMMAND ${Qt6_DIR}/../../../bin/windeployqt.exe
+    #     "$<TARGET_FILE:UniversalConverter>"
+    # )
 endif()
