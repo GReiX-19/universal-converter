@@ -1,4 +1,5 @@
 #include "MainWindow.hpp"
+#include "SourcePanel.hpp"
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -23,7 +24,7 @@ void MainWindow::setupLayout(){
     layout->setContentsMargins(12,12,12,12);
     layout->setSpacing(12);
 
-    auto* left = new QLabel("Source", this);
+    auto* left = new SourcePanel(this);
     auto* middle = new QLabel("Format", this);
     auto* right = new QLabel("Output", this);
 
