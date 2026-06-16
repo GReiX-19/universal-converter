@@ -7,6 +7,9 @@
 
 SourcePanel::SourcePanel(QWidget* _parent)
     : QWidget(_parent)
+    , m_fileList(new QListWidget(this))
+    , m_addButton(new QPushButton(this))
+    , m_removeButton(new QPushButton(this))
 {
     setupUI();
 }
@@ -16,12 +19,15 @@ void SourcePanel::setupUI(){
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(8);
 
-    auto* title = new QLabel(this);
+    auto* title = new QLabel("Files", this);
+    title->setStyleSheet("font-weight: 500; color: grey;");
+    layout->addWidget(title);
+
     layout->addWidget(m_fileList, 1);
 
     auto* buttonLayout = new QHBoxLayout();
-    m_addButton = new QPushButton("+ Add", this);
-    m_removeButton = new QPushButton("+ Remove", this);
+    m_addButton->setText("+ Add");
+    m_removeButton->setText("- Remove");
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_removeButton);
     layout->addLayout(buttonLayout);
