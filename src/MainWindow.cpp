@@ -50,7 +50,10 @@ void MainWindow::connectPanels() {
 
 void MainWindow::onFilesChanged(const QStringList& _files) {
     m_currentFiles = _files;
-    m_formatPanel->updateCompatibility(_files);
+    if (_files.isEmpty())
+        m_formatPanel->resetCompatibility();
+    else
+        m_formatPanel->updateCompatibility(_files);
 }
 void MainWindow::onFormatSelected(const QString& _format) {
     m_currentFormat = _format;
@@ -63,7 +66,7 @@ void MainWindow::onConvertRequested() {
         QFileInfo info(file);
 
         OutputEntry entry;
-        entry.fileName = info.fileName();
+        entry.fileName = info.baseName() + m_currentFormat.toLower();
         entry.outputPath = info.dir().filePath(info.baseName() + m_currentFormat.toLower());
         entry.progress = 0;
 

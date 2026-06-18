@@ -67,7 +67,7 @@ void FormatPanel::updateCompatibility(const QStringList& _files) {
         if (!(item->flags() & Qt::ItemIsEnabled) and (item->flags() == Qt::NoItemFlags))
             continue;
 
-        const QString format = item->data(Qt::UserRole).toString().toUpper();
+        const QString format = item->data(Qt::UserRole).toString();
         if (format.isEmpty())
             continue;
 
@@ -78,5 +78,17 @@ void FormatPanel::updateCompatibility(const QStringList& _files) {
 
         item->setFlags(compatible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
         item->setForeground(compatible ? qApp->palette().text() : qApp->palette().mid());
+    }
+}
+
+void FormatPanel::resetCompatibility() {
+    for (size_t i = 0; i < m_formatList->count(); ++i) {
+        auto* item = m_formatList->item(i);
+
+        if (item->data(Qt::UserRole).toString().isEmpty())
+            continue;
+
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        item->setForeground(qApp->palette().text());
     }
 }

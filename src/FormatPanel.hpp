@@ -15,6 +15,7 @@ public:
     explicit FormatPanel(QWidget* _parent = nullptr);
 
     void updateCompatibility(const QStringList& _files);
+    void resetCompatibility();
 
 signals:
     void formatSelected(const QString& _format);
