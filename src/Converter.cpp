@@ -1,4 +1,5 @@
 #include "Converter.hpp"
+#include "ConversionRules.hpp"
 
 #include <QFileInfo>
 #include <QDir>
@@ -30,10 +31,27 @@ void Converter::startNext() {
     m_duration = 0.0;
     m_currentTask = m_queue.dequeue();
 
-    QStringList args;
-    args << "-i" << m_currentTask.inputPath << "-y" << m_currentTask.outputPath;
+    const FileCategory category = ConversionRules::categoryOf(m_currentTask.inputPath);
+    const ConverterTool tool = ConversionRules::toolFor(category, m_currentTask.format);
 
-    m_process->start("ffmpeg", args);
+    QStringList args;
+
+    switch (tool) {
+    case ConverterTool::FFmpeg:
+        args << "-i" << m_currentTask.inputPath << "-y" << m_currentTask.outputPath;
+        m_process->start("ffmpeg", args);
+        break;
+    case ConverterTool::LibreOffice:
+        args << "--headless" << "--convert-to" << m_currentTask.format.toLower()
+            << "--outdir" << QFileInfo(m_currentTask.outputPath).dir().absolutePath()
+            << m_currentTask.inputPath;
+        m_process->start("soffice", args);
+        break;
+    case ConverterTool::None:
+        emit taskFinished(QFileInfo(m_currentTask.inputPath).fileName(), false);
+        startNext();
+        break;
+    }
 }
 
 void Converter::onReadyReadStandardError() {

@@ -50,6 +50,7 @@ void MainWindow::connectPanels() {
 
 void MainWindow::onFilesChanged(const QStringList& _files) {
     m_currentFiles = _files;
+    m_formatPanel->updateCompatibility(_files);
 }
 void MainWindow::onFormatSelected(const QString& _format) {
     m_currentFormat = _format;

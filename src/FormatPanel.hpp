@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ConversionRules.hpp"
+
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
@@ -11,6 +13,8 @@ class FormatPanel : public QWidget
 
 public:
     explicit FormatPanel(QWidget* _parent = nullptr);
+
+    void updateCompatibility(const QStringList& _files);
 
 signals:
     void formatSelected(const QString& _format);
