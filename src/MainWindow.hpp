@@ -20,6 +20,7 @@ private slots:
     void onFilesChanged(const QStringList& _files);
     void onFormatSelected(const QString& _format);
     void onConvertRequested();
+    void onOutputDirRequested();
 
 private:
     void setupUI();
@@ -35,5 +36,5 @@ private:
     QString m_currentFormat;
 
     Converter* m_converter;
-
+    QString m_outputDir;
 };

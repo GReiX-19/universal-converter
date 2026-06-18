@@ -5,11 +5,15 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QListWidgetItem>
+#include <QDesktopServices>
+#include <QFileInfo>
+#include <QUrl>
+#include <QDir>
 
 OutputPanel::OutputPanel(QWidget* _parent)
     : QWidget(_parent)
     , m_outputList(new QListWidget(this))
-    , m_downloadButton(new QPushButton("Download All", this))
+    , m_outputDirButton(new QPushButton("Choose folder", this))
 {
     setupUI();
 }
@@ -24,7 +28,9 @@ void OutputPanel::setupUI() {
 
     layout->addWidget(title);
     layout->addWidget(m_outputList, 1);
-    layout->addWidget(m_downloadButton);
+    layout->addWidget(m_outputDirButton);
+
+    connect(m_outputDirButton, &QPushButton::clicked, this, &OutputPanel::outputDirRequested);
 }
 
 void OutputPanel::addEntry(const OutputEntry& _entry) {
@@ -47,18 +53,22 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     infoCol->addWidget(progress);
     infoCol->setSpacing(4);
 
-    auto* openButton = new QPushButton("Open", widget);
-    auto* downloadButton = new QPushButton("Download", widget);
-    openButton->setFixedSize(28, 28);
-    downloadButton->setFixedSize(28, 28);
-
     auto* statusLabel = new QLabel("...", widget);
     statusLabel->setStyleSheet("font-size: 14px; color: gray;");
+
+    const QString outputPath = _entry.outputPath;
+    auto* openButton = new QPushButton("📂", widget);
+    openButton->setFixedSize(28, 28);
+    openButton->setToolTip("Show in folder");
+
+    connect(openButton, &QPushButton::clicked, this, [outputPath]() {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(outputPath).dir().absolutePath()));
+        }
+    );
 
     row->addLayout(infoCol, 1);
     row->addWidget(statusLabel);
     row->addWidget(openButton);
-    row->addWidget(downloadButton);
     row->setContentsMargins(8, 6, 8, 6);
 
     item->setSizeHint(widget->sizeHint());

@@ -26,12 +26,15 @@ public:
 public slots:
     void onTaskFinished(const QString& _fileName, bool _success);
 
+signals:
+    void outputDirRequested();
+
 private:
     void setupUI();
 
 private:
     QListWidget* m_outputList;
-    QPushButton* m_downloadButton;
+    QPushButton* m_outputDirButton;
     QMap<QString, QProgressBar*> m_progressBars;
     QMap<QString, QLabel*> m_statusLabels;
 };

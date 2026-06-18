@@ -7,6 +7,8 @@
 #include <QHBoxLayout>
 #include <QFileInfo>
 #include <QDir>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget* _parent)
     : QMainWindow(_parent)
@@ -55,6 +57,8 @@ void MainWindow::connectPanels() {
         m_formatPanel->setConverterEnabled(true);
         }
     );
+
+    connect(m_outputPanel, &OutputPanel::outputDirRequested, this, &MainWindow::onOutputDirRequested);
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {
@@ -74,9 +78,12 @@ void MainWindow::onConvertRequested() {
     for (const QString& file : m_currentFiles) {
         QFileInfo info(file);
 
+        const QString outDir = m_outputDir.isEmpty()
+            ? info.dir().absolutePath() : m_outputDir;
+
         OutputEntry entry;
         entry.fileName = info.baseName() + m_currentFormat.toLower();
-        entry.outputPath = info.dir().filePath(info.baseName() + m_currentFormat.toLower());
+        entry.outputPath = outDir + "/" + entry.fileName;
         entry.progress = 0;
 
         m_outputPanel->addEntry(entry);
@@ -88,4 +95,11 @@ void MainWindow::onConvertRequested() {
 
         m_converter->enqueue(task);
     }
+}
+
+void MainWindow::onOutputDirRequested() {
+    const QString dir = QFileDialog::getExistingDirectory(this, "Choose folder for resault", m_outputDir.isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
+    if (!dir.isEmpty())
+        m_outputDir = dir;
 }
