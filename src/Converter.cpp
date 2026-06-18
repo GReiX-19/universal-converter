@@ -82,13 +82,13 @@ void Converter::onReadyReadStandardError() {
 
         int progress = static_cast<int>((current / m_duration) * 100);
 
-        emit progressChanged(QFileInfo(m_currentTask.inputPath).fileName(), progress);
+        emit progressChanged(QFileInfo(m_currentTask.outputPath).fileName(), progress);
     }
 }
 
 void Converter::onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitStatus) {
     const bool success = (_exitCode == 0 and _exitStatus == QProcess::NormalExit);
-    const QString fileName = QFileInfo(m_currentTask.inputPath).fileName();
+    const QString fileName = QFileInfo(m_currentTask.outputPath).fileName();
 
     emit progressChanged(fileName, 100);
     emit taskFinished(fileName, success);

@@ -46,6 +46,15 @@ void MainWindow::connectPanels() {
 
     connect(m_converter, &Converter::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
     connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
+
+    connect(m_formatPanel, &FormatPanel::convertRequested, this, [this]() {
+        m_formatPanel->setConverterEnabled(false);
+        }
+    );
+    connect(m_converter, &Converter::allTasksFinished, this, [this]() {
+        m_formatPanel->setConverterEnabled(true);
+        }
+    );
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {

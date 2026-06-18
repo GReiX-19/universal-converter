@@ -21,6 +21,9 @@ signals:
     void formatSelected(const QString& _format);
     void convertRequested();
 
+public slots:
+    void setConverterEnabled(bool enabled);
+
 private slots:
     void onFormatClicked(QListWidgetItem* _item);
 
