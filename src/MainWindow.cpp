@@ -6,12 +6,14 @@
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QFileInfo>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget* _parent)
     : QMainWindow(_parent)
     , m_sourcePanel(new SourcePanel(this))
     , m_formatPanel(new FormatPanel(this))
     , m_outputPanel(new OutputPanel(this))
+    , m_converter(new Converter(this))
 {
     setWindowTitle("Universal Converter");
     setMinimumSize(900, 560);
@@ -41,6 +43,9 @@ void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::filesChanged, this, &MainWindow::onFilesChanged);
     connect(m_formatPanel, &FormatPanel::formatSelected, this, &MainWindow::onFormatSelected);
     connect(m_formatPanel, &FormatPanel::convertRequested, this, &MainWindow::onConvertRequested);
+
+    connect(m_converter, &Converter::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
+    connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {
@@ -54,10 +59,20 @@ void MainWindow::onConvertRequested() {
         return;
 
     for (const QString& file : m_currentFiles) {
+        QFileInfo info(file);
+
         OutputEntry entry;
-        entry.fileName = QFileInfo(file).fileName();
-        entry.outputPath = file;
+        entry.fileName = info.fileName();
+        entry.outputPath = info.dir().filePath(info.baseName() + "." + m_currentFormat.toLower());
         entry.progress = 0;
+
         m_outputPanel->addEntry(entry);
+
+        ConversionTask task;
+        task.inputPath = file;
+        task.outputPath = entry.outputPath;
+        task.format = m_currentFormat;
+
+        m_converter->convert(task);
     }
 }

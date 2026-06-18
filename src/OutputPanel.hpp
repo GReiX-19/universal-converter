@@ -20,6 +20,9 @@ public:
     void addEntry(const OutputEntry& _entry);
     void updateProgress(const QString& _fileName, quint32 _progress);
 
+public slots:
+    void onTaskFinished(const QString& _fileName, bool success);
+
 private:
     void setupUI();
 

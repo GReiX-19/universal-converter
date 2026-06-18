@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+#include "Converter.hpp"
+
 class SourcePanel;
 class FormatPanel;
 class OutputPanel;
@@ -31,5 +33,7 @@ private:
 
     QStringList m_currentFiles;
     QString m_currentFormat;
+
+    Converter* m_converter;
 
 };

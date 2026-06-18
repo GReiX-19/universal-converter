@@ -65,3 +65,7 @@ void OutputPanel::updateProgress(const QString& _fileName, quint32 _progress) {
     Q_UNUSED(_fileName)
         Q_UNUSED(_progress)
 }
+
+void OutputPanel::onTaskFinished(const QString& _fileName, bool success) {
+    qDebug() << _fileName << (success ? "OK" : "FAILED");
+}
