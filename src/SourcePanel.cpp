@@ -14,9 +14,9 @@ SourcePanel::SourcePanel(QWidget* _parent)
     setupUI();
 }
 
-void SourcePanel::setupUI(){
+void SourcePanel::setupUI() {
     auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(8);
 
     auto* title = new QLabel("Files", this);
@@ -36,7 +36,7 @@ void SourcePanel::setupUI(){
     connect(m_removeButton, &QPushButton::clicked, this, &SourcePanel::onRemoveClicked);
 }
 
-void SourcePanel::onAddClicked(){
+void SourcePanel::onAddClicked() {
     QStringList files = QFileDialog::getOpenFileNames(this, "Choose files", QDir::homePath());
 
     for (const auto& path : files)
@@ -49,7 +49,7 @@ void SourcePanel::onAddClicked(){
     emit filesChanged(all);
 }
 
-void SourcePanel::onRemoveClicked(){
+void SourcePanel::onRemoveClicked() {
     delete m_fileList->takeItem(m_fileList->currentRow());
 
     QStringList all;

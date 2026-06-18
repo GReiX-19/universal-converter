@@ -2,8 +2,8 @@
 
 #include <QMainWindow>
 
-class MainWindow : public QMainWindow{
-    
+class MainWindow : public QMainWindow {
+
     Q_OBJECT
 
 public:
@@ -12,5 +12,5 @@ public:
 
 private:
     void setupUI();
-    void setupLayout();    
+    void setupLayout();
 };

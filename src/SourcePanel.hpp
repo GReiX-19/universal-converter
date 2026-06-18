@@ -5,7 +5,7 @@
 #include <QPushButton>
 
 class SourcePanel : public QWidget {
-    
+
     Q_OBJECT
 
 public:
@@ -17,7 +17,7 @@ signals:
 private slots:
     void onAddClicked();
     void onRemoveClicked();
-    
+
 private:
     void setupUI();
 
