@@ -30,6 +30,7 @@ void FormatPanel::setupUI()
     layout->addWidget(m_convertButton);
 
     connect(m_formatList, &QListWidget::itemClicked, this, &FormatPanel::onFormatClicked);
+    connect(m_convertButton, &QPushButton::clicked, this, &FormatPanel::convertRequested);
 }
 
 void FormatPanel::addSection(const QString& title, const QStringList& formats)
