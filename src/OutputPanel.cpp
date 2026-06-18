@@ -59,11 +59,13 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
 
     item->setSizeHint(widget->sizeHint());
     m_outputList->setItemWidget(item, widget);
+
+    m_progressBars[_entry.fileName] = progress;
 }
 
 void OutputPanel::updateProgress(const QString& _fileName, quint32 _progress) {
-    Q_UNUSED(_fileName)
-        Q_UNUSED(_progress)
+    if (m_progressBars.contains(_fileName))
+        m_progressBars[_fileName]->setValue(_progress);
 }
 
 void OutputPanel::onTaskFinished(const QString& _fileName, bool success) {

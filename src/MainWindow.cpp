@@ -63,7 +63,7 @@ void MainWindow::onConvertRequested() {
 
         OutputEntry entry;
         entry.fileName = info.fileName();
-        entry.outputPath = info.dir().filePath(info.baseName() + "." + m_currentFormat.toLower());
+        entry.outputPath = info.dir().filePath(info.baseName() + m_currentFormat.toLower());
         entry.progress = 0;
 
         m_outputPanel->addEntry(entry);

@@ -33,5 +33,5 @@ private:
 private:
     QProcess* m_process;
     ConversionTask m_currentTask;
-
+    double m_duration = 0.0;
 };

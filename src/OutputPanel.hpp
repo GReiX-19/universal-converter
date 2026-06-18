@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
+#include <QProgressBar>
+#include <QMap>
 
 struct OutputEntry {
     QString fileName;
@@ -29,4 +31,5 @@ private:
 private:
     QListWidget* m_outputList;
     QPushButton* m_downloadButton;
+    QMap<QString, QProgressBar*> m_progressBars;
 };
