@@ -12,12 +12,26 @@ Converter::Converter(QObject* _parent)
     connect(m_process, &QProcess::finished, this, &Converter::onProcessFinished);
 }
 
-void Converter::convert(const ConversionTask& _task) {
-    m_currentTask = _task;
-    m_duration = 0;
+void Converter::enqueue(const ConversionTask& _task) {
+    m_queue.enqueue(_task);
+
+    if (!m_busy)
+        startNext();
+}
+
+void Converter::startNext() {
+    if (m_queue.isEmpty()) {
+        m_busy = false;
+        emit allTasksFinished();
+        return;
+    }
+
+    m_busy = true;
+    m_duration = 0.0;
+    m_currentTask = m_queue.dequeue();
 
     QStringList args;
-    args << "-i" << _task.inputPath << "-y" << _task.outputPath;
+    args << "-i" << m_currentTask.inputPath << "-y" << m_currentTask.outputPath;
 
     m_process->start("ffmpeg", args);
 }
@@ -48,9 +62,9 @@ void Converter::onReadyReadStandardError() {
         int cs = match.captured(4).toInt();
         double current = (h * 3600) + (m * 60) + s + cs / 100.0;
 
-        int percent = static_cast<int>((current / m_duration) * 100);
+        int progress = static_cast<int>((current / m_duration) * 100);
 
-        emit progressChanged(QFileInfo(m_currentTask.inputPath).fileName(), percent);
+        emit progressChanged(QFileInfo(m_currentTask.inputPath).fileName(), progress);
     }
 }
 
@@ -60,9 +74,6 @@ void Converter::onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitSt
 
     emit progressChanged(fileName, 100);
     emit taskFinished(fileName, success);
-}
 
-QString Converter::buildOutputPath(const QString& _inputPath, const QString& _format) {
-    QFileInfo info(_inputPath);
-    return info.dir().filePath(info.baseName() + _format.toLower());
+    startNext();
 }

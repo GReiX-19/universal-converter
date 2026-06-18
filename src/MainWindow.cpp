@@ -73,6 +73,6 @@ void MainWindow::onConvertRequested() {
         task.outputPath = entry.outputPath;
         task.format = m_currentFormat;
 
-        m_converter->convert(task);
+        m_converter->enqueue(task);
     }
 }
