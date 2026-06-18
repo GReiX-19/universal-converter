@@ -12,6 +12,7 @@ qt_add_executable(UniversalConverter
     src/main.cpp
     src/MainWindow.cpp
     src/SourcePanel.cpp
+    src/FormatPanel.cpp
 )
 
 target_link_libraries(UniversalConverter PRIVATE Qt6::Core Qt6::Widgets)
