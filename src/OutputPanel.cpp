@@ -52,7 +52,11 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     openButton->setFixedSize(28, 28);
     downloadButton->setFixedSize(28, 28);
 
+    auto* statusLabel = new QLabel("...", widget);
+    statusLabel->setStyleSheet("font-size: 14px; color: gray;");
+
     row->addLayout(infoCol, 1);
+    row->addWidget(statusLabel);
     row->addWidget(openButton);
     row->addWidget(downloadButton);
     row->setContentsMargins(8, 6, 8, 6);
@@ -61,6 +65,7 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     m_outputList->setItemWidget(item, widget);
 
     m_progressBars[_entry.fileName] = progress;
+    m_statusLabels[_entry.fileName] = statusLabel;
 }
 
 void OutputPanel::updateProgress(const QString& _fileName, quint32 _progress) {
@@ -68,6 +73,19 @@ void OutputPanel::updateProgress(const QString& _fileName, quint32 _progress) {
         m_progressBars[_fileName]->setValue(_progress);
 }
 
-void OutputPanel::onTaskFinished(const QString& _fileName, bool success) {
-    qDebug() << _fileName << (success ? "OK" : "FAILED");
+void OutputPanel::onTaskFinished(const QString& _fileName, bool _success) {
+    if (m_statusLabels.contains(_fileName)) {
+        auto* label = m_statusLabels[_fileName];
+        if (_success) {
+            label->setText("✓");
+            label->setStyleSheet("font-size: 14px; color: green;");
+        }
+        else {
+            label->setText("✗");
+            label->setStyleSheet("font-size: 14px; color: green;");
+        }
+    }
+
+    if (m_progressBars.contains(_fileName))
+        m_progressBars[_fileName]->setValue(100);
 }

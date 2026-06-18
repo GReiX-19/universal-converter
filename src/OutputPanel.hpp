@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
 #include <QProgressBar>
@@ -23,7 +24,7 @@ public:
     void updateProgress(const QString& _fileName, quint32 _progress);
 
 public slots:
-    void onTaskFinished(const QString& _fileName, bool success);
+    void onTaskFinished(const QString& _fileName, bool _success);
 
 private:
     void setupUI();
@@ -32,4 +33,5 @@ private:
     QListWidget* m_outputList;
     QPushButton* m_downloadButton;
     QMap<QString, QProgressBar*> m_progressBars;
+    QMap<QString, QLabel*> m_statusLabels;
 };
