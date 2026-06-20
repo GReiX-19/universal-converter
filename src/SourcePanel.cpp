@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QFileDialog>
+#include <QMimeData>
 
 SourcePanel::SourcePanel(QWidget* _parent)
     : QWidget(_parent)
@@ -11,6 +12,7 @@ SourcePanel::SourcePanel(QWidget* _parent)
     , m_addButton(new QPushButton("+ Add", this))
     , m_removeButton(new QPushButton("- Remove", this))
 {
+    setAcceptDrops(true);
     setupUI();
 }
 
@@ -32,6 +34,39 @@ void SourcePanel::setupUI() {
 
     connect(m_addButton, &QPushButton::clicked, this, &SourcePanel::onAddClicked);
     connect(m_removeButton, &QPushButton::clicked, this, &SourcePanel::onRemoveClicked);
+}
+
+void SourcePanel::dragEnterEvent(QDragEnterEvent* _event) {
+    if (_event->mimeData()->hasUrls() or _event->mimeData()->hasText())
+        _event->acceptProposedAction();
+}
+
+void SourcePanel::dropEvent(QDropEvent* _event) {
+    const QMimeData* mime = _event->mimeData();
+
+    if (mime->hasUrls()) {
+        for (const auto& url : mime->urls()) {
+            if (url.isLocalFile())
+                m_fileList->addItem(url.toLocalFile());
+            else if (isUrl(url.toString()))
+                emit urlDropped(url.toString());
+        }
+    }
+    else if (mime->hasText() and isUrl(mime->text())) {
+        emit urlDropped(mime->text().trimmed());
+    }
+
+    QStringList all;
+    for (size_t i = 0; i < m_fileList->count(); ++i)
+        all << m_fileList->item(i)->text();
+
+    emit filesChanged(all);
+
+    _event->acceptProposedAction();
+}
+
+bool SourcePanel::isUrl(const QString& _text) const {
+    return _text.startsWith("http://") or _text.startsWith("https://");
 }
 
 void SourcePanel::onAddClicked() {
