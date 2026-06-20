@@ -82,7 +82,7 @@ void MainWindow::onConvertRequested() {
             ? info.dir().absolutePath() : m_outputDir;
 
         OutputEntry entry;
-        entry.fileName = info.baseName() + m_currentFormat.toLower();
+        entry.fileName = info.baseName() + "." + m_currentFormat.toLower();
         entry.outputPath = outDir + "/" + entry.fileName;
         entry.progress = 0;
 
