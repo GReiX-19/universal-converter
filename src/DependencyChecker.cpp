@@ -22,7 +22,7 @@ QString DependencyChecker::installHintFor(Dependency _dep) {
     switch (_dep) {
     case Dependency::FFmpeg: return "Download from ffmpeg.org or via winget: winget install ffmpeg";
     case Dependency::LibreOffice: return "Download from libreoffice.org";
-    case Dependency::YtDlp: return "winget install yt-dlp"
+    case Dependency::YtDlp: return "winget install yt-dlp";
     }
 #else
     switch (_dep) {

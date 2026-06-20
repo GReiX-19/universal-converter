@@ -46,11 +46,13 @@ void SourcePanel::dropEvent(QDropEvent* _event) {
 
     if (mime->hasUrls()) {
         for (const auto& url : mime->urls()) {
-            if (url.isLocalFile())
+            if (url.isLocalFile()) {
                 m_fileList->addItem(url.toLocalFile());
-            else if (isUrl(url.toString()))
+            }
+            else if (isUrl(url.toString())) {
                 m_fileList->addItem(url.toString());
-            emit urlDropped(url.toString());
+                emit urlDropped(url.toString());
+            }
         }
     }
     else if (mime->hasText() and isUrl(mime->text())) {
