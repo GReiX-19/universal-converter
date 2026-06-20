@@ -51,7 +51,8 @@ void MainWindow::connectPanels() {
     connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
 
     connect(m_formatPanel, &FormatPanel::convertRequested, this, [this]() {
-        m_formatPanel->setConverterEnabled(false);
+        if (!m_currentFiles.isEmpty())
+            m_formatPanel->setConverterEnabled(false);
         }
     );
     connect(m_converter, &Converter::allTasksFinished, this, [this]() {
