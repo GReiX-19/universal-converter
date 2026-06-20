@@ -14,6 +14,7 @@ OutputPanel::OutputPanel(QWidget* _parent)
     : QWidget(_parent)
     , m_outputList(new QListWidget(this))
     , m_outputDirButton(new QPushButton("Choose folder", this))
+    , m_clearButton(new QPushButton("Clear", this))
 {
     setupUI();
 }
@@ -28,9 +29,14 @@ void OutputPanel::setupUI() {
 
     layout->addWidget(title);
     layout->addWidget(m_outputList, 1);
-    layout->addWidget(m_outputDirButton);
+
+    auto* buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(m_outputDirButton);
+    buttonLayout->addWidget(m_clearButton);
+    layout->addLayout(buttonLayout);
 
     connect(m_outputDirButton, &QPushButton::clicked, this, &OutputPanel::outputDirRequested);
+    connect(m_clearButton, &QPushButton::clicked, m_outputList, &QListWidget::clear);
 }
 
 void OutputPanel::addEntry(const OutputEntry& _entry) {

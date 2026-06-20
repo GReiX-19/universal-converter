@@ -36,6 +36,7 @@ private:
 private:
     QListWidget* m_outputList;
     QPushButton* m_outputDirButton;
+    QPushButton* m_clearButton;
     QMap<QString, QProgressBar*> m_progressBars;
     QMap<QString, QLabel*> m_statusLabels;
 };

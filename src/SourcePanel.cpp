@@ -8,8 +8,8 @@
 SourcePanel::SourcePanel(QWidget* _parent)
     : QWidget(_parent)
     , m_fileList(new QListWidget(this))
-    , m_addButton(new QPushButton(this))
-    , m_removeButton(new QPushButton(this))
+    , m_addButton(new QPushButton("+ Add", this))
+    , m_removeButton(new QPushButton("- Remove", this))
 {
     setupUI();
 }
@@ -26,8 +26,6 @@ void SourcePanel::setupUI() {
     layout->addWidget(m_fileList, 1);
 
     auto* buttonLayout = new QHBoxLayout();
-    m_addButton->setText("+ Add");
-    m_removeButton->setText("- Remove");
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_removeButton);
     layout->addLayout(buttonLayout);
