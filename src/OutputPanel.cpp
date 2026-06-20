@@ -49,6 +49,14 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     progress->setFixedHeight(4);
     progress->setTextVisible(false);
 
+    if (_entry.indeterminate) {
+        progress->setRange(0, 0);
+    }
+    else {
+        progress->setRange(0, 100);
+        progress->setValue(_entry.progress);
+    }
+
     infoCol->addWidget(name);
     infoCol->addWidget(progress);
     infoCol->setSpacing(4);
@@ -96,6 +104,9 @@ void OutputPanel::onTaskFinished(const QString& _fileName, bool _success) {
         }
     }
 
-    if (m_progressBars.contains(_fileName))
-        m_progressBars[_fileName]->setValue(100);
+    if (m_progressBars.contains(_fileName)) {
+        QProgressBar* bar = m_progressBars[_fileName];
+        bar->setRange(0, 100);
+        bar->setValue(100);
+    }
 }

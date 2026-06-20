@@ -11,6 +11,7 @@ struct OutputEntry {
     QString fileName;
     QString outputPath;
     quint32 progress;
+    bool indeterminate = false;
 };
 
 class OutputPanel : public QWidget {

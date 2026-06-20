@@ -2,6 +2,7 @@
 #include "SourcePanel.hpp"
 #include "FormatPanel.hpp"
 #include "OutputPanel.hpp"
+#include "ConversionRules.hpp"
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -83,10 +84,14 @@ void MainWindow::onConvertRequested() {
         const QString outDir = m_outputDir.isEmpty()
             ? info.dir().absolutePath() : m_outputDir;
 
+        const FileCategory category = ConversionRules::categoryOf(file);
+        const ConverterTool tool = ConversionRules::toolFor(category, m_currentFormat);
+
         OutputEntry entry;
         entry.fileName = info.baseName() + "." + m_currentFormat.toLower();
         entry.outputPath = outDir + "/" + entry.fileName;
         entry.progress = 0;
+        entry.indeterminate = (tool == ConverterTool::LibreOffice);
 
         m_outputPanel->addEntry(entry);
 
