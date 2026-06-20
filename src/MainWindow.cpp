@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget* _parent)
     , m_formatPanel(new FormatPanel(this))
     , m_outputPanel(new OutputPanel(this))
     , m_converter(new Converter(this))
+    , m_downloader(new Downloader(this))
 {
     setWindowTitle("Universal Converter");
     setMinimumSize(900, 560);
@@ -61,6 +62,10 @@ void MainWindow::connectPanels() {
     );
 
     connect(m_outputPanel, &OutputPanel::outputDirRequested, this, &MainWindow::onOutputDirRequested);
+
+    connect(m_sourcePanel, &SourcePanel::urlDropped, this, &MainWindow::onUrlDropped);
+    connect(m_downloader, &Downloader::downloadFinished, this, &MainWindow::onDownloadFinished);
+    connect(m_downloader, &Downloader::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {
@@ -110,4 +115,22 @@ void MainWindow::onOutputDirRequested() {
         ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
     if (!dir.isEmpty())
         m_outputDir = dir;
+}
+
+void MainWindow::onUrlDropped(const QString& _url) {
+    const QString outDir = m_outputDir.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) : m_outputDir;
+
+    OutputEntry entry;
+    entry.fileName = _url;
+    entry.outputPath = outDir;
+    entry.progress = 0;
+    entry.indeterminate = false;
+
+    m_outputPanel->addEntry(entry);
+
+    m_downloader->download(_url, outDir);
+}
+
+void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
+    m_outputPanel->onTaskFinished(_url, _success);
 }

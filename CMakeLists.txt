@@ -17,6 +17,7 @@ qt_add_executable(UniversalConverter
     src/Converter.cpp
     src/ConversionRules.cpp
     src/DependencyChecker.cpp
+    src/Downloader.cpp
 )
 
 target_link_libraries(UniversalConverter PRIVATE Qt6::Core Qt6::Widgets)

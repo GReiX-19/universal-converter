@@ -3,6 +3,7 @@
 #include <QMainWindow>
 
 #include "Converter.hpp"
+#include "Downloader.hpp"
 
 class SourcePanel;
 class FormatPanel;
@@ -21,6 +22,8 @@ private slots:
     void onFormatSelected(const QString& _format);
     void onConvertRequested();
     void onOutputDirRequested();
+    void onUrlDropped(const QString& _url);
+    void onDownloadFinished(const QString& _url, bool _success);
 
 private:
     void setupUI();
@@ -34,7 +37,8 @@ private:
 
     QStringList m_currentFiles;
     QString m_currentFormat;
+    QString m_outputDir;
 
     Converter* m_converter;
-    QString m_outputDir;
+    Downloader* m_downloader;
 };

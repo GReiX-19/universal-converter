@@ -49,11 +49,14 @@ void SourcePanel::dropEvent(QDropEvent* _event) {
             if (url.isLocalFile())
                 m_fileList->addItem(url.toLocalFile());
             else if (isUrl(url.toString()))
-                emit urlDropped(url.toString());
+                m_fileList->addItem(url.toString());
+            emit urlDropped(url.toString());
         }
     }
     else if (mime->hasText() and isUrl(mime->text())) {
-        emit urlDropped(mime->text().trimmed());
+        const QString url = mime->text().trimmed();
+        m_fileList->addItem(url);
+        emit urlDropped(url);
     }
 
     QStringList all;

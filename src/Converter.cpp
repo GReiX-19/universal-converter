@@ -80,7 +80,7 @@ void Converter::onReadyReadStandardError() {
         int cs = match.captured(4).toInt();
         double current = (h * 3600) + (m * 60) + s + cs / 100.0;
 
-        int progress = static_cast<int>((current / m_duration) * 100);
+        quint32 progress = static_cast<quint32>((current / m_duration) * 100);
 
         emit progressChanged(QFileInfo(m_currentTask.outputPath).fileName(), progress);
     }
