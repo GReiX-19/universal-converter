@@ -86,9 +86,6 @@ void SourcePanel::onRemoveClicked() {
 }
 void SourcePanel::onItemClicked(QListWidgetItem* _item) {
     const int row = m_fileList->row(_item);
-
-    qWarning() << "onItemClicked, row: " << row << " sourceFiles size: " << m_sourceFiles.size();
-
     if (row < 0 or row >= m_sourceFiles.size())
         return;
 

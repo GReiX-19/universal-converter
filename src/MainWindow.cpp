@@ -34,7 +34,6 @@ void MainWindow::onFilesChanged(const QStringList& _files) {
     m_formatPanel->updateCompatibility(_files);
 }
 void MainWindow::onFileSelected(const QString& _path) {
-    qWarning() << "onFileSelected called with: " << _path;
     m_activeFilePath = _path;
 
     m_formatPanel->resetCompatibility();
