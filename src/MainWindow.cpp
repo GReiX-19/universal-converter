@@ -24,6 +24,93 @@ MainWindow::MainWindow(QWidget* _parent)
     setupUI();
 }
 
+void MainWindow::onFilesChanged(const QStringList& _files) {
+    m_currentFiles = _files;
+    m_formatPanel->resetCompatibility();
+
+    if (_files.isEmpty())
+        return;
+
+    m_formatPanel->updateCompatibility(_files);
+}
+void MainWindow::onFileSelected(const QString& _path) {
+    qWarning() << "onFileSelected called with: " << _path;
+    m_activeFilePath = _path;
+
+    m_formatPanel->resetCompatibility();
+    m_formatPanel->updateCompatibility({ _path });
+
+    const auto sourceFiles = m_sourcePanel->files();
+    for (const auto& sf : sourceFiles) {
+        if (sf.path == _path) {
+            m_formatPanel->highlightFormat(sf.selectedFormat);
+            break;
+        }
+    }
+}
+void MainWindow::onFormatSelected(const QString& _format) {
+    if (m_activeFilePath.isEmpty())
+        return;
+
+    m_sourcePanel->setFormatForFile(m_activeFilePath, _format);
+    m_formatPanel->highlightFormat(_format);
+}
+void MainWindow::onConvertRequested() {
+    const auto sourceFiles = m_sourcePanel->files();
+    if (sourceFiles.isEmpty())
+        return;
+
+    for (const auto& sf : sourceFiles) {
+        if (sf.selectedFormat.isEmpty())
+            continue;
+
+        QFileInfo info(sf.path);
+
+        const QString outDir = m_outputDir.isEmpty()
+            ? info.dir().absolutePath() : m_outputDir;
+
+        const FileCategory category = ConversionRules::categoryOf(sf.path);
+        const ConverterTool tool = ConversionRules::toolFor(category, sf.selectedFormat);
+
+        OutputEntry entry;
+        entry.fileName = info.baseName() + "." + sf.selectedFormat.toLower();
+        entry.outputPath = outDir + "/" + entry.fileName;
+        entry.progress = 0;
+        entry.indeterminate = (tool == ConverterTool::LibreOffice);
+
+        m_outputPanel->addEntry(entry);
+
+        ConversionTask task;
+        task.inputPath = sf.path;
+        task.outputPath = entry.outputPath;
+        task.format = sf.selectedFormat;
+
+        m_converter->enqueue(task);
+    }
+}
+void MainWindow::onOutputDirRequested() {
+    const QString dir = QFileDialog::getExistingDirectory(this, "Choose folder for result", m_outputDir.isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
+    if (!dir.isEmpty())
+        m_outputDir = dir;
+}
+void MainWindow::onUrlDropped(const QString& _url) {
+    const QString outDir = m_outputDir.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) : m_outputDir;
+
+    OutputEntry entry;
+    entry.fileName = _url;
+    entry.outputPath = outDir;
+    entry.progress = 0;
+    entry.indeterminate = false;
+
+    m_outputPanel->addEntry(entry);
+
+    m_downloader->download(_url, outDir);
+}
+void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
+    m_outputPanel->onTaskFinished(_url, _success);
+}
+
 void MainWindow::setupUI()
 {
     auto* central = new QWidget(this);
@@ -45,6 +132,7 @@ void MainWindow::setupLayout()
 }
 void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::filesChanged, this, &MainWindow::onFilesChanged);
+    connect(m_sourcePanel, &SourcePanel::fileSelected, this, &MainWindow::onFileSelected);
     connect(m_formatPanel, &FormatPanel::formatSelected, this, &MainWindow::onFormatSelected);
     connect(m_formatPanel, &FormatPanel::convertRequested, this, &MainWindow::onConvertRequested);
 
@@ -66,71 +154,4 @@ void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::urlDropped, this, &MainWindow::onUrlDropped);
     connect(m_downloader, &Downloader::downloadFinished, this, &MainWindow::onDownloadFinished);
     connect(m_downloader, &Downloader::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
-}
-
-void MainWindow::onFilesChanged(const QStringList& _files) {
-    m_currentFiles = _files;
-    m_formatPanel->resetCompatibility();
-
-    if (_files.isEmpty())
-        return;
-
-    m_formatPanel->updateCompatibility(_files);
-}
-void MainWindow::onFormatSelected(const QString& _format) {
-    m_currentFormat = _format;
-}
-void MainWindow::onConvertRequested() {
-    if (m_currentFiles.isEmpty() or m_currentFormat.isEmpty())
-        return;
-
-    for (const QString& file : m_currentFiles) {
-        QFileInfo info(file);
-
-        const QString outDir = m_outputDir.isEmpty()
-            ? info.dir().absolutePath() : m_outputDir;
-
-        const FileCategory category = ConversionRules::categoryOf(file);
-        const ConverterTool tool = ConversionRules::toolFor(category, m_currentFormat);
-
-        OutputEntry entry;
-        entry.fileName = info.baseName() + "." + m_currentFormat.toLower();
-        entry.outputPath = outDir + "/" + entry.fileName;
-        entry.progress = 0;
-        entry.indeterminate = (tool == ConverterTool::LibreOffice);
-
-        m_outputPanel->addEntry(entry);
-
-        ConversionTask task;
-        task.inputPath = file;
-        task.outputPath = entry.outputPath;
-        task.format = m_currentFormat;
-
-        m_converter->enqueue(task);
-    }
-}
-
-void MainWindow::onOutputDirRequested() {
-    const QString dir = QFileDialog::getExistingDirectory(this, "Choose folder for result", m_outputDir.isEmpty()
-        ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
-    if (!dir.isEmpty())
-        m_outputDir = dir;
-}
-
-void MainWindow::onUrlDropped(const QString& _url) {
-    const QString outDir = m_outputDir.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) : m_outputDir;
-
-    OutputEntry entry;
-    entry.fileName = _url;
-    entry.outputPath = outDir;
-    entry.progress = 0;
-    entry.indeterminate = false;
-
-    m_outputPanel->addEntry(entry);
-
-    m_downloader->download(_url, outDir);
-}
-
-void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
-    m_outputPanel->onTaskFinished(_url, _success);
 }

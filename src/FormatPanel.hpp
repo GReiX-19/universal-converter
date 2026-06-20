@@ -16,6 +16,7 @@ public:
 
     void updateCompatibility(const QStringList& _files);
     void resetCompatibility();
+    void highlightFormat(const QString& _format);
 
 signals:
     void formatSelected(const QString& _format);

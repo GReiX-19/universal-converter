@@ -5,6 +5,12 @@
 #include <QPushButton>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QList>
+
+struct SourceFile {
+    QString path;
+    QString selectedFormat;
+};
 
 class SourcePanel : public QWidget {
 
@@ -13,9 +19,14 @@ class SourcePanel : public QWidget {
 public:
     explicit SourcePanel(QWidget* _parent = nullptr);
 
+    QList<SourceFile> files() const;
+    void setFormatForFile(const QString& _path, const QString& _format);
+    QString activeFilePath() const;
+
 signals:
     void filesChanged(const QStringList& _files);
     void urlDropped(const QString& _url);
+    void fileSelected(const QString& _path);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* _event) override;
@@ -24,13 +35,18 @@ protected:
 private slots:
     void onAddClicked();
     void onRemoveClicked();
+    void onItemClicked(QListWidgetItem* _item);
 
 private:
     void setupUI();
     bool isUrl(const QString& _text) const;
+    void addFile(const QString& _path);
+    void refreshItemText(qint32 _row);
+    void emitFilesChanged();
 
 private:
     QListWidget* m_fileList;
     QPushButton* m_addButton;
     QPushButton* m_removeButton;
+    QList<SourceFile> m_sourceFiles;
 };

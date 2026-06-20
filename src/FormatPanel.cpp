@@ -14,56 +14,6 @@ FormatPanel::FormatPanel(QWidget* _parent)
     setupUI();
 }
 
-void FormatPanel::setupUI()
-{
-    auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(8);
-
-    auto* title = new QLabel("Format", this);
-    title->setStyleSheet("font-weight: 500; color: gray;");
-    title->setAlignment(Qt::AlignCenter);
-    layout->addWidget(title);
-
-    addSection("Video", { "mp4", "avi", "mkv" });
-    addSection("Audio", { "mp3", "wav" });
-    addSection("Documents", { "pdf", "docx" });
-    addSection("Images", { "jpg", "png", "webp" });
-
-    layout->addWidget(m_formatList, 1);
-    layout->addWidget(m_convertButton);
-
-    connect(m_formatList, &QListWidget::itemClicked, this, &FormatPanel::onFormatClicked);
-    connect(m_convertButton, &QPushButton::clicked, this, &FormatPanel::convertRequested);
-}
-
-void FormatPanel::addSection(const QString& title, const QStringList& formats)
-{
-    auto* separator = new QListWidgetItem(title.toUpper());
-    separator->setFlags(Qt::NoItemFlags);
-    separator->setForeground(Qt::gray);
-    m_formatList->addItem(separator);
-
-    for (const QString& fmt : formats)
-    {
-        auto* item = new QListWidgetItem(" " + fmt);
-        item->setData(Qt::UserRole, fmt);
-        m_formatList->addItem(item);
-    }
-}
-
-void FormatPanel::setConverterEnabled(bool _enabled) {
-    m_convertButton->setEnabled(_enabled);
-}
-
-void FormatPanel::onFormatClicked(QListWidgetItem* item)
-{
-    if (!(item->flags() & Qt::ItemIsEnabled))
-        return;
-
-    emit formatSelected(item->data(Qt::UserRole).toString());
-}
-
 void FormatPanel::updateCompatibility(const QStringList& _files) {
     for (size_t i = 0; i < m_formatList->count(); ++i) {
         auto* item = m_formatList->item(i);
@@ -84,7 +34,6 @@ void FormatPanel::updateCompatibility(const QStringList& _files) {
         item->setForeground(compatible ? qApp->palette().text() : qApp->palette().mid());
     }
 }
-
 void FormatPanel::resetCompatibility() {
     for (size_t i = 0; i < m_formatList->count(); ++i) {
         auto* item = m_formatList->item(i);
@@ -94,5 +43,63 @@ void FormatPanel::resetCompatibility() {
 
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         item->setForeground(qApp->palette().text());
+    }
+}
+void FormatPanel::highlightFormat(const QString& _format) {
+    for (size_t i = 0; i < m_formatList->count(); ++i) {
+        auto* item = m_formatList->item(i);
+
+        const QString fmt = item->data(Qt::UserRole).toString();
+        if (fmt.isEmpty())
+            continue;
+
+        const bool isSelected = fmt.compare(_format, Qt::CaseInsensitive) == 0;
+        item->setSelected(isSelected);
+    }
+}
+
+void FormatPanel::setConverterEnabled(bool _enabled) {
+    m_convertButton->setEnabled(_enabled);
+}
+
+void FormatPanel::onFormatClicked(QListWidgetItem* item) {
+    if (!(item->flags() & Qt::ItemIsEnabled))
+        return;
+
+    emit formatSelected(item->data(Qt::UserRole).toString());
+}
+
+void FormatPanel::setupUI() {
+    auto* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    auto* title = new QLabel("Format", this);
+    title->setStyleSheet("font-weight: 500; color: gray;");
+    title->setAlignment(Qt::AlignCenter);
+    layout->addWidget(title);
+
+    addSection("Video", { "mp4", "avi", "mkv" });
+    addSection("Audio", { "mp3", "wav" });
+    addSection("Documents", { "pdf", "docx" });
+    addSection("Images", { "jpg", "png", "webp" });
+
+    layout->addWidget(m_formatList, 1);
+    layout->addWidget(m_convertButton);
+
+    connect(m_formatList, &QListWidget::itemClicked, this, &FormatPanel::onFormatClicked);
+    connect(m_convertButton, &QPushButton::clicked, this, &FormatPanel::convertRequested);
+}
+void FormatPanel::addSection(const QString& title, const QStringList& formats) {
+    auto* separator = new QListWidgetItem(title.toUpper());
+    separator->setFlags(Qt::NoItemFlags);
+    separator->setForeground(Qt::gray);
+    m_formatList->addItem(separator);
+
+    for (const QString& fmt : formats)
+    {
+        auto* item = new QListWidgetItem(" " + fmt);
+        item->setData(Qt::UserRole, fmt);
+        m_formatList->addItem(item);
     }
 }

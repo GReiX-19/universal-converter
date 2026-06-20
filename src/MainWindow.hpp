@@ -19,6 +19,7 @@ public:
 
 private slots:
     void onFilesChanged(const QStringList& _files);
+    void onFileSelected(const QString& _path);
     void onFormatSelected(const QString& _format);
     void onConvertRequested();
     void onOutputDirRequested();
@@ -36,7 +37,7 @@ private:
     OutputPanel* m_outputPanel;
 
     QStringList m_currentFiles;
-    QString m_currentFormat;
+    QString m_activeFilePath;
     QString m_outputDir;
 
     Converter* m_converter;
