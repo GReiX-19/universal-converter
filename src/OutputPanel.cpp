@@ -23,7 +23,7 @@ void OutputPanel::setupUI() {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(8);
 
-    auto* title = new QLabel("Resault", this);
+    auto* title = new QLabel("Result", this);
     title->setStyleSheet("font-weight: 500; color: gray;");
 
     layout->addWidget(title);

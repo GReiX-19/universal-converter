@@ -98,7 +98,7 @@ void MainWindow::onConvertRequested() {
 }
 
 void MainWindow::onOutputDirRequested() {
-    const QString dir = QFileDialog::getExistingDirectory(this, "Choose folder for resault", m_outputDir.isEmpty()
+    const QString dir = QFileDialog::getExistingDirectory(this, "Choose folder for result", m_outputDir.isEmpty()
         ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
     if (!dir.isEmpty())
         m_outputDir = dir;
