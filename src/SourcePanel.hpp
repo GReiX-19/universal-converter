@@ -12,7 +12,7 @@ public:
     explicit SourcePanel(QWidget* _parent = nullptr);
 
 signals:
-    void filesChanged(const QStringList& files);
+    void filesChanged(const QStringList& _files);
 
 private slots:
     void onAddClicked();

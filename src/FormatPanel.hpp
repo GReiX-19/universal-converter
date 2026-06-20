@@ -22,7 +22,7 @@ signals:
     void convertRequested();
 
 public slots:
-    void setConverterEnabled(bool enabled);
+    void setConverterEnabled(bool _enabled);
 
 private slots:
     void onFormatClicked(QListWidgetItem* _item);

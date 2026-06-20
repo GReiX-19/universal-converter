@@ -52,8 +52,8 @@ void FormatPanel::addSection(const QString& title, const QStringList& formats)
     }
 }
 
-void FormatPanel::setConverterEnabled(bool enabled) {
-    m_convertButton->setEnabled(enabled);
+void FormatPanel::setConverterEnabled(bool _enabled) {
+    m_convertButton->setEnabled(_enabled);
 }
 
 void FormatPanel::onFormatClicked(QListWidgetItem* item)
