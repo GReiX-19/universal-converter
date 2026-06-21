@@ -19,6 +19,7 @@ public:
     explicit Converter(QObject* _parent = nullptr);
 
     void enqueue(const ConversionTask& _task);
+    void cancelAll();
 
 signals:
     void progressChanged(const QString& _fileName, quint32 _progress);
@@ -38,4 +39,5 @@ private:
     QQueue<ConversionTask> m_queue;
     double m_duration = 0.0;
     bool m_busy = false;
+    bool m_cancelled = false;
 };

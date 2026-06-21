@@ -109,6 +109,12 @@ void MainWindow::onUrlDropped(const QString& _url) {
 void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
     m_outputPanel->onTaskFinished(_url, _success);
 }
+void MainWindow::onClearRequested() {
+    m_converter->cancelAll();
+    m_downloader->cancel();
+    m_outputPanel->clear();
+    m_formatPanel->setConverterEnabled(true);
+}
 
 void MainWindow::setupUI()
 {
@@ -163,4 +169,6 @@ void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::urlDropped, this, &MainWindow::onUrlDropped);
     connect(m_downloader, &Downloader::downloadFinished, this, &MainWindow::onDownloadFinished);
     connect(m_downloader, &Downloader::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
+
+    connect(m_outputPanel, &OutputPanel::clearRequested, this, &MainWindow::onClearRequested);
 }

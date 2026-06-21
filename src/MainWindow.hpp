@@ -25,6 +25,7 @@ private slots:
     void onOutputDirRequested();
     void onUrlDropped(const QString& _url);
     void onDownloadFinished(const QString& _url, bool _success);
+    void onClearRequested();
 
 private:
     void setupUI();

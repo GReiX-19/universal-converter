@@ -23,12 +23,14 @@ public:
 
     void addEntry(const OutputEntry& _entry);
     void updateProgress(const QString& _fileName, quint32 _progress);
+    void clear();
 
 public slots:
     void onTaskFinished(const QString& _fileName, bool _success);
 
 signals:
     void outputDirRequested();
+    void clearRequested();
 
 private:
     void setupUI();

@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QRegularExpression>
+#include <QFile>
 
 Converter::Converter(QObject* _parent)
     : QObject(_parent)
@@ -18,6 +19,20 @@ void Converter::enqueue(const ConversionTask& _task) {
 
     if (!m_busy)
         startNext();
+}
+void Converter::cancelAll() {
+    m_cancelled = true;
+    m_queue.clear();
+
+    if (m_process->state() != QProcess::NotRunning) {
+        m_process->terminate();
+        if (m_process->waitForFinished(2000))
+            m_process->kill();
+
+        QFile::remove(m_currentTask.outputPath);
+    }
+
+    m_busy = false;
 }
 
 void Converter::startNext() {
@@ -55,6 +70,9 @@ void Converter::startNext() {
 }
 
 void Converter::onReadyReadStandardError() {
+    if (m_cancelled)
+        return;
+
     const QString output = m_process->readAllStandardError();
 
     if (m_duration == 0) {
@@ -87,6 +105,11 @@ void Converter::onReadyReadStandardError() {
 }
 
 void Converter::onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitStatus) {
+    if (m_cancelled) {
+        m_cancelled = false;
+        return;
+    }
+
     const bool success = (_exitCode == 0 and _exitStatus == QProcess::NormalExit);
     const QString fileName = QFileInfo(m_currentTask.outputPath).fileName();
 

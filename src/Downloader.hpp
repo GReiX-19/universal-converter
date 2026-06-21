@@ -12,6 +12,7 @@ public:
     explicit Downloader(QObject* _parent = nullptr);
 
     void download(const QString& _url, const QString& _outputDir);
+    void cancel();
 
 signals:
     void progressChanged(const QString& _label, quint32 _progress);
@@ -23,6 +24,7 @@ private slots:
 
 private:
     QProcess* m_process;
-    QString m_currenUrl;
+    QString m_currentUrl;
     QString m_outputTemplate;
+    bool m_cancelled = false;
 };

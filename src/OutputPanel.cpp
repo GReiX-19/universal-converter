@@ -19,26 +19,6 @@ OutputPanel::OutputPanel(QWidget* _parent)
     setupUI();
 }
 
-void OutputPanel::setupUI() {
-    auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(8);
-
-    auto* title = new QLabel("Result", this);
-    title->setStyleSheet("font-weight: 500; color: gray;");
-
-    layout->addWidget(title);
-    layout->addWidget(m_outputList, 1);
-
-    auto* buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(m_outputDirButton);
-    buttonLayout->addWidget(m_clearButton);
-    layout->addLayout(buttonLayout);
-
-    connect(m_outputDirButton, &QPushButton::clicked, this, &OutputPanel::outputDirRequested);
-    connect(m_clearButton, &QPushButton::clicked, m_outputList, &QListWidget::clear);
-}
-
 void OutputPanel::addEntry(const OutputEntry& _entry) {
     auto* item = new QListWidgetItem(m_outputList);
     auto* widget = new QWidget(this);
@@ -91,10 +71,14 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     m_progressBars[_entry.fileName] = progress;
     m_statusLabels[_entry.fileName] = statusLabel;
 }
-
 void OutputPanel::updateProgress(const QString& _fileName, quint32 _progress) {
     if (m_progressBars.contains(_fileName))
         m_progressBars[_fileName]->setValue(_progress);
+}
+void OutputPanel::clear() {
+    m_outputList->clear();
+    m_progressBars.clear();
+    m_statusLabels.clear();
 }
 
 void OutputPanel::onTaskFinished(const QString& _fileName, bool _success) {
@@ -115,4 +99,24 @@ void OutputPanel::onTaskFinished(const QString& _fileName, bool _success) {
         bar->setRange(0, 100);
         bar->setValue(100);
     }
+}
+
+void OutputPanel::setupUI() {
+    auto* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    auto* title = new QLabel("Result", this);
+    title->setStyleSheet("font-weight: 500; color: gray;");
+
+    layout->addWidget(title);
+    layout->addWidget(m_outputList, 1);
+
+    auto* buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(m_outputDirButton);
+    buttonLayout->addWidget(m_clearButton);
+    layout->addLayout(buttonLayout);
+
+    connect(m_outputDirButton, &QPushButton::clicked, this, &OutputPanel::outputDirRequested);
+    connect(m_clearButton, &QPushButton::clicked, this, &OutputPanel::clearRequested);
 }

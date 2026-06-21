@@ -12,7 +12,7 @@ Downloader::Downloader(QObject* _parent)
 }
 
 void Downloader::download(const QString& _url, const QString& _outputDir) {
-    m_currenUrl = _url;
+    m_currentUrl = _url;
 
     m_outputTemplate = _outputDir + "/%(title)s.%(ext)s";
 
@@ -21,8 +21,20 @@ void Downloader::download(const QString& _url, const QString& _outputDir) {
 
     m_process->start("yt-dlp", args);
 }
+void Downloader::cancel() {
+    m_cancelled = true;
+
+    if (m_process->state() != QProcess::NotRunning) {
+        m_process->terminate();
+        if (m_process->waitForFinished(2000))
+            m_process->kill();
+    }
+}
 
 void Downloader::onReadyReadStandardOutput() {
+    if (m_cancelled)
+        return;
+
     const QString output = m_process->readAllStandardOutput();
 
     QRegularExpression percentRx(R"(\[download\]\s+([\d.]+)%)");
@@ -30,12 +42,16 @@ void Downloader::onReadyReadStandardOutput() {
 
     if (match.hasMatch()) {
         const quint32 progress = static_cast<quint32>(match.captured(1).toDouble());
-        emit progressChanged(m_currenUrl, progress);
+        emit progressChanged(m_currentUrl, progress);
     }
 }
-
 void Downloader::onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitStatus) {
+    if (m_cancelled) {
+        m_cancelled = false;
+        return;
+    }
+
     const bool success = (_exitCode == 0 and _exitStatus == QProcess::NormalExit);
 
-    emit downloadFinished(m_currenUrl, success);
+    emit downloadFinished(m_currentUrl, success);
 }
