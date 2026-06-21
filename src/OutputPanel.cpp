@@ -30,6 +30,15 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     auto* progress = new QProgressBar(widget);
 
     name->setStyleSheet("font-size: 12px;");
+    name->setMinimumWidth(0);
+
+    const QFontMetrics metrics(name->font());
+    const int maxWidth = 250;
+    const QString elided = metrics.elidedText(_entry.fileName, Qt::ElideMiddle, maxWidth);
+
+    name->setText(elided);
+    name->setToolTip(_entry.fileName);
+
     progress->setRange(0, 100);
     progress->setValue(_entry.progress);
     progress->setFixedHeight(4);
@@ -108,8 +117,9 @@ void OutputPanel::setupUI() {
 
     auto* title = new QLabel("Result", this);
     title->setStyleSheet("font-weight: 500; color: gray;");
-
     layout->addWidget(title);
+
+    m_outputList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     layout->addWidget(m_outputList, 1);
 
     auto* buttonLayout = new QHBoxLayout();
