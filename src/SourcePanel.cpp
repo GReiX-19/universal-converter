@@ -22,20 +22,25 @@ QList<SourceFile> SourcePanel::files() const {
     return m_sourceFiles;
 }
 void SourcePanel::setFormatForFile(const QString& _path, const QString& _format) {
-    for (size_t i = 0; i < m_sourceFiles.size(); ++i) {
-        if (m_sourceFiles.at(i).path == _path) {
-            m_sourceFiles[i].selectedFormat = _format;
-            refreshItemText(i);
+    for (auto& sf : m_sourceFiles) {
+        if (sf.path == _path) {
+            sf.selectedFormat = _format;
             break;
         }
     }
+
+    rebuildList();
 }
 QString SourcePanel::activeFilePath() const {
-    const int row = m_fileList->currentRow();
-    if (row < 0 or row >= m_sourceFiles.size())
+    auto* item = m_fileList->currentItem();
+    if (!item)
         return {};
 
-    return m_sourceFiles.at(row).path;
+    const int idx = item->data(Qt::UserRole).toInt();
+    if (idx < 0 or idx >= m_sourceFiles.size())
+        return {};
+
+    return m_sourceFiles.at(idx).path;
 }
 
 void SourcePanel::dragEnterEvent(QDragEnterEvent* _event) {
@@ -72,21 +77,24 @@ void SourcePanel::onAddClicked() {
     emitFilesChanged();
 }
 void SourcePanel::onRemoveClicked() {
-    const int row = m_fileList->currentRow();
-    if (row < 0)
+    auto* item = m_fileList->currentItem();
+    if (!item)
         return;
 
-    delete m_fileList->takeItem(row);
-    m_sourceFiles.removeAt(row);
+    const int idx = item->data(Qt::UserRole).toInt();
+    if (idx < 0 or idx >= m_sourceFiles.size())
+        return;
 
+    m_sourceFiles.removeAt(idx);
     emitFilesChanged();
+    rebuildList();
 }
 void SourcePanel::onItemClicked(QListWidgetItem* _item) {
-    const int row = m_fileList->row(_item);
-    if (row < 0 or row >= m_sourceFiles.size())
+    const int idx = _item->data(Qt::UserRole).toInt();
+    if (idx < 0 or idx >= m_sourceFiles.size())
         return;
 
-    emit fileSelected(m_sourceFiles.at(row).path);
+    emit fileSelected(m_sourceFiles.at(idx).path);
 }
 
 void SourcePanel::setupUI() {
@@ -98,6 +106,8 @@ void SourcePanel::setupUI() {
     title->setStyleSheet("font-weight: 500; color: grey;");
     layout->addWidget(title);
 
+    m_fileList->setTextElideMode(Qt::ElideMiddle);
+    m_fileList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     layout->addWidget(m_fileList, 1);
 
     auto* buttonLayout = new QHBoxLayout();
@@ -120,24 +130,7 @@ void SourcePanel::addFile(const QString& _path) {
 
     m_sourceFiles.append(sf);
 
-    const QString name = sf.isUrl ? _path
-        : (QFileInfo(_path).fileName().isEmpty() ? _path : QFileInfo(_path).fileName());
-
-    m_fileList->addItem(name);
-}
-void SourcePanel::refreshItemText(qint32 _row) {
-    if (_row < 0 or _row >= m_sourceFiles.size())
-        return;
-
-    const SourceFile& sf = m_sourceFiles.at(_row);
-    const QString name = sf.isUrl ? sf.path
-        : (QFileInfo(sf.path).fileName().isEmpty() ? sf.path : QFileInfo(sf.path).fileName());
-
-    QString text = name;
-    if (!sf.selectedFormat.isEmpty())
-        text += " → " + sf.selectedFormat;
-
-    m_fileList->item(_row)->setText(text);
+    rebuildList();
 }
 void SourcePanel::emitFilesChanged() {
     QStringList paths;
@@ -145,4 +138,59 @@ void SourcePanel::emitFilesChanged() {
         paths << sf.path;
 
     emit filesChanged(paths);
+}
+void SourcePanel::rebuildList() {
+    m_fileList->clear();
+
+    QMap<FileCategory, QList<int>> grouped;
+
+    for (size_t i = 0; i < m_sourceFiles.size(); ++i) {
+        const FileCategory category = ConversionRules::categoryOf(m_sourceFiles.at(i).path);
+        grouped[category].append(i);
+    }
+
+    const QList<FileCategory> sectionOrder = {
+        FileCategory::Video,
+        FileCategory::Audio,
+        FileCategory::Image,
+        FileCategory::Document,
+        FileCategory::OnlineVideo,
+        FileCategory::Unknown
+    };
+
+    for (const FileCategory category : sectionOrder) {
+        if (!grouped.contains(category))
+            continue;
+
+        auto* separator = new QListWidgetItem(sectionTitleFor(category));
+        separator->setFlags(Qt::NoItemFlags);
+        separator->setForeground(Qt::gray);
+        m_fileList->addItem(separator);
+
+        for (const int idx : grouped[category]) {
+            const SourceFile& sf = m_sourceFiles.at(idx);
+
+            const QString name = sf.isUrl ? sf.path
+                : (QFileInfo(sf.path).fileName().isEmpty() ? sf.path : QFileInfo(sf.path).fileName());
+
+            QString text = name;
+            if (!sf.selectedFormat.isEmpty())
+                text += " → " + sf.selectedFormat;
+
+            auto* item = new QListWidgetItem(text);
+            item->setData(Qt::UserRole, idx);
+            m_fileList->addItem(item);
+        }
+    }
+}
+QString SourcePanel::sectionTitleFor(FileCategory _category) const {
+    switch (_category) {
+    case FileCategory::Video: return "Videos";
+    case FileCategory::Audio: return "Audio";
+    case FileCategory::Image: return "Images";
+    case FileCategory::Document: return "Documents";
+    case FileCategory::OnlineVideo: return "Links";
+    default:
+        return "Other";
+    }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ConversionRules.hpp"
+
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
@@ -41,8 +43,9 @@ private:
     void setupUI();
     bool isUrl(const QString& _text) const;
     void addFile(const QString& _path);
-    void refreshItemText(qint32 _row);
     void emitFilesChanged();
+    void rebuildList();
+    QString sectionTitleFor(FileCategory _category) const;
 
 private:
     QListWidget* m_fileList;
