@@ -139,7 +139,17 @@ void MainWindow::connectPanels() {
     connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
 
     connect(m_formatPanel, &FormatPanel::convertRequested, this, [this]() {
-        if (!m_currentFiles.isEmpty())
+        bool hasFormat = false;
+        const auto sourceFiles = m_sourcePanel->files();
+
+        for (const auto& sf : sourceFiles) {
+            if (!sf.selectedFormat.isEmpty()) {
+                hasFormat = true;
+                break;
+            }
+        }
+
+        if (hasFormat)
             m_formatPanel->setConverterEnabled(false);
         }
     );
