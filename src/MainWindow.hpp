@@ -23,7 +23,6 @@ private slots:
     void onFormatSelected(const QString& _format);
     void onConvertRequested();
     void onOutputDirRequested();
-    void onUrlDropped(const QString& _url);
     void onDownloadFinished(const QString& _url, bool _success);
     void onClearRequested();
 

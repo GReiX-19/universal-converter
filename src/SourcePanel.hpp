@@ -10,6 +10,7 @@
 struct SourceFile {
     QString path;
     QString selectedFormat;
+    bool isUrl = false;
 };
 
 class SourcePanel : public QWidget {
@@ -25,7 +26,6 @@ public:
 
 signals:
     void filesChanged(const QStringList& _files);
-    void urlDropped(const QString& _url);
     void fileSelected(const QString& _path);
 
 protected:

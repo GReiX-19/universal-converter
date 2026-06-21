@@ -63,10 +63,23 @@ void MainWindow::onConvertRequested() {
         if (sf.selectedFormat.isEmpty())
             continue;
 
-        QFileInfo info(sf.path);
-
         const QString outDir = m_outputDir.isEmpty()
-            ? info.dir().absolutePath() : m_outputDir;
+            ? QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) : m_outputDir;
+
+        if (sf.isUrl) {
+            OutputEntry entry;
+            entry.fileName = sf.path;
+            entry.outputPath = outDir;
+            entry.progress = 0;
+            entry.indeterminate = false;
+
+            m_outputPanel->addEntry(entry);
+
+            m_downloader->download(sf.path, outDir, sf.selectedFormat);
+            continue;
+        }
+
+        QFileInfo info(sf.path);
 
         const FileCategory category = ConversionRules::categoryOf(sf.path);
         const ConverterTool tool = ConversionRules::toolFor(category, sf.selectedFormat);
@@ -92,19 +105,6 @@ void MainWindow::onOutputDirRequested() {
         ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : m_outputDir);
     if (!dir.isEmpty())
         m_outputDir = dir;
-}
-void MainWindow::onUrlDropped(const QString& _url) {
-    const QString outDir = m_outputDir.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) : m_outputDir;
-
-    OutputEntry entry;
-    entry.fileName = _url;
-    entry.outputPath = outDir;
-    entry.progress = 0;
-    entry.indeterminate = false;
-
-    m_outputPanel->addEntry(entry);
-
-    m_downloader->download(_url, outDir);
 }
 void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
     m_outputPanel->onTaskFinished(_url, _success);
@@ -166,7 +166,6 @@ void MainWindow::connectPanels() {
 
     connect(m_outputPanel, &OutputPanel::outputDirRequested, this, &MainWindow::onOutputDirRequested);
 
-    connect(m_sourcePanel, &SourcePanel::urlDropped, this, &MainWindow::onUrlDropped);
     connect(m_downloader, &Downloader::downloadFinished, this, &MainWindow::onDownloadFinished);
     connect(m_downloader, &Downloader::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
 

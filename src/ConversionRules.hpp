@@ -9,12 +9,14 @@ enum class FileCategory {
     Audio,
     Image,
     Document,
+    OnlineVideo,
     Unknown
 };
 
 enum class ConverterTool {
     FFmpeg,
     LibreOffice,
+    YtDlp,
     None
 };
 
@@ -24,6 +26,7 @@ public:
     static QStringList availableFormats(FileCategory _category);
     static ConverterTool toolFor(FileCategory _fromFormat, const QString& _toFormat);
     static bool isCompatible(const QString& _filePath, const QString& _format);
+    static bool isUrl(const QString& _path);
 
 private:
     static const QMap<QString, FileCategory> s_extensionMap;

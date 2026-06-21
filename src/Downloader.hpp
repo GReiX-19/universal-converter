@@ -11,7 +11,7 @@ class Downloader : public QObject {
 public:
     explicit Downloader(QObject* _parent = nullptr);
 
-    void download(const QString& _url, const QString& _outputDir);
+    void download(const QString& _url, const QString& _outputDir, const QString& _format);
     void cancel();
 
 signals:
@@ -21,6 +21,9 @@ signals:
 private slots:
     void onReadyReadStandardOutput();
     void onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitStatus);
+
+private:
+    bool isAudioFormat(const QString& _format) const;
 
 private:
     QProcess* m_process;

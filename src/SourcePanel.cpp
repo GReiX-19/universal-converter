@@ -52,14 +52,11 @@ void SourcePanel::dropEvent(QDropEvent* _event) {
             }
             else if (isUrl(url.toString())) {
                 addFile(url.toString());
-                emit urlDropped(url.toString());
             }
         }
     }
     else if (mime->hasText() and isUrl(mime->text())) {
-        const QString url = mime->text().trimmed();
-        addFile(url);
-        emit urlDropped(url);
+        addFile(mime->text().trimmed());
     }
 
     emitFilesChanged();
@@ -119,10 +116,13 @@ void SourcePanel::addFile(const QString& _path) {
     SourceFile sf;
     sf.path = _path;
     sf.selectedFormat = QString();
+    sf.isUrl = isUrl(_path);
 
     m_sourceFiles.append(sf);
 
-    const QString name = QFileInfo(_path).fileName().isEmpty() ? _path : QFileInfo(_path).fileName();
+    const QString name = sf.isUrl ? _path
+        : (QFileInfo(_path).fileName().isEmpty() ? _path : QFileInfo(_path).fileName());
+
     m_fileList->addItem(name);
 }
 void SourcePanel::refreshItemText(qint32 _row) {
@@ -130,7 +130,8 @@ void SourcePanel::refreshItemText(qint32 _row) {
         return;
 
     const SourceFile& sf = m_sourceFiles.at(_row);
-    const QString name = QFileInfo(sf.path).fileName().isEmpty() ? sf.path : QFileInfo(sf.path).fileName();
+    const QString name = sf.isUrl ? sf.path
+        : (QFileInfo(sf.path).fileName().isEmpty() ? sf.path : QFileInfo(sf.path).fileName());
 
     QString text = name;
     if (!sf.selectedFormat.isEmpty())

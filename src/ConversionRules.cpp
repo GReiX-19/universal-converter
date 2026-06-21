@@ -34,10 +34,14 @@ const QMap<FileCategory, QStringList> ConversionRules::s_formatsMap = {
     {FileCategory::Video, {"MP4", "AVI", "MKV", "MP3", "WAV"}},
     {FileCategory::Audio, {"MP3", "WAV", "FLAC", "OGG", "AAC"}},
     {FileCategory::Image, {"JPG", "JPEG", "PNG", "WEBP", "BMP"}},
+    {FileCategory::OnlineVideo, {"MP4", "WEBM", "MKV", "MP3", "WAV"}},
     {FileCategory::Document, {"PDF", "DOCX", "ODT"}}
 };
 
 FileCategory ConversionRules::categoryOf(const QString& _filePath) {
+    if (isUrl(_filePath))
+        return FileCategory::OnlineVideo;
+
     const QString ext = QFileInfo(_filePath).suffix().toLower();
     return s_extensionMap.value(ext, FileCategory::Unknown);
 }
@@ -50,8 +54,9 @@ ConverterTool ConversionRules::toolFor(FileCategory _fromFormat, const QString& 
     const QString fmt = _toFormat.toLower();
 
     switch (_fromFormat) {
-    case FileCategory::Document: return ConverterTool::LibreOffice; break;
-    case FileCategory::Video: case FileCategory::Audio: case FileCategory::Image: return ConverterTool::FFmpeg; break;
+    case FileCategory::Document: return ConverterTool::LibreOffice;
+    case FileCategory::Video: case FileCategory::Audio: case FileCategory::Image: return ConverterTool::FFmpeg;
+    case FileCategory::OnlineVideo: return ConverterTool::YtDlp;
     default:
         return ConverterTool::None;
     }
@@ -65,4 +70,8 @@ bool ConversionRules::isCompatible(const QString& _filePath, const QString& _for
 
     const QStringList formats = availableFormats(category);
     return formats.contains(_format.toUpper());
+}
+
+bool ConversionRules::isUrl(const QString& _path) {
+    return _path.startsWith("http://") or _path.startsWith("https://");
 }

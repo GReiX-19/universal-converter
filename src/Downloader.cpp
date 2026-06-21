@@ -11,13 +11,20 @@ Downloader::Downloader(QObject* _parent)
     connect(m_process, &QProcess::finished, this, &Downloader::onProcessFinished);
 }
 
-void Downloader::download(const QString& _url, const QString& _outputDir) {
+void Downloader::download(const QString& _url, const QString& _outputDir, const QString& _format) {
     m_currentUrl = _url;
 
     m_outputTemplate = _outputDir + "/%(title)s.%(ext)s";
 
     QStringList args;
     args << _url << "-o" << m_outputTemplate << "--newline";
+
+    if (isAudioFormat(_format)) {
+        args << "--extract-audio" << "--audio-format" << _format.toLower();
+    }
+    else {
+        args << "--recode-video" << _format.toLower();
+    }
 
     m_process->start("yt-dlp", args);
 }
@@ -54,4 +61,9 @@ void Downloader::onProcessFinished(qint32 _exitCode, QProcess::ExitStatus _exitS
     const bool success = (_exitCode == 0 and _exitStatus == QProcess::NormalExit);
 
     emit downloadFinished(m_currentUrl, success);
+}
+
+bool Downloader::isAudioFormat(const QString& _format) const {
+    const QString& fmt = _format.toLower();
+    return fmt == "mp3" or fmt == "wav";
 }
