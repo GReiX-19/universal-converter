@@ -140,6 +140,13 @@ void SourcePanel::emitFilesChanged() {
     emit filesChanged(paths);
 }
 void SourcePanel::rebuildList() {
+    QString previouslySelectedPath;
+    if (auto* current = m_fileList->currentItem()) {
+        const int idx = current->data(Qt::UserRole).toInt();
+        if (idx >= 0 and idx < m_sourceFiles.size())
+            previouslySelectedPath = m_sourceFiles.at(idx).path;
+    }
+
     m_fileList->clear();
 
     QMap<FileCategory, QList<int>> grouped;
@@ -157,6 +164,9 @@ void SourcePanel::rebuildList() {
         FileCategory::OnlineVideo,
         FileCategory::Unknown
     };
+
+    QListWidgetItem* firstSelectableItem = nullptr;
+    QListWidgetItem* itemToRestore = nullptr;
 
     for (const FileCategory category : sectionOrder) {
         if (!grouped.contains(category))
@@ -180,7 +190,23 @@ void SourcePanel::rebuildList() {
             auto* item = new QListWidgetItem(text);
             item->setData(Qt::UserRole, idx);
             m_fileList->addItem(item);
+
+            if (!firstSelectableItem)
+                firstSelectableItem = item;
+            if (!previouslySelectedPath.isEmpty() and sf.path == previouslySelectedPath)
+                itemToRestore = item;
         }
+    }
+
+    if (itemToRestore) {
+        m_fileList->setCurrentItem(itemToRestore);
+    }
+    else if (firstSelectableItem) {
+        m_fileList->setCurrentItem(firstSelectableItem);
+
+        const int idx = firstSelectableItem->data(Qt::UserRole).toInt();
+        if (idx >= 0 and idx < m_sourceFiles.size())
+            emit fileSelected(m_sourceFiles.at(idx).path);
     }
 }
 QString SourcePanel::sectionTitleFor(FileCategory _category) const {
