@@ -75,7 +75,13 @@ void MainWindow::onConvertRequested() {
 
             m_outputPanel->addEntry(entry);
 
-            m_downloader->download(sf.path, outDir, sf.selectedFormat);
+            DownloadTask task;
+            task.url = sf.path;
+            task.outputDir = outDir;
+            task.format = sf.selectedFormat;
+
+            m_downloader->enqueue(task);
+
             continue;
         }
 
@@ -111,7 +117,7 @@ void MainWindow::onDownloadFinished(const QString& _url, bool _success) {
 }
 void MainWindow::onClearRequested() {
     m_converter->cancelAll();
-    m_downloader->cancel();
+    m_downloader->cancelAll();
     m_outputPanel->clear();
     m_formatPanel->setConverterEnabled(true);
 }
@@ -140,10 +146,6 @@ void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::fileSelected, this, &MainWindow::onFileSelected);
     connect(m_formatPanel, &FormatPanel::formatSelected, this, &MainWindow::onFormatSelected);
     connect(m_formatPanel, &FormatPanel::convertRequested, this, &MainWindow::onConvertRequested);
-
-    connect(m_converter, &Converter::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
-    connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
-
     connect(m_formatPanel, &FormatPanel::convertRequested, this, [this]() {
         bool hasFormat = false;
         const auto sourceFiles = m_sourcePanel->files();
@@ -159,15 +161,20 @@ void MainWindow::connectPanels() {
             m_formatPanel->setConverterEnabled(false);
         }
     );
+    connect(m_outputPanel, &OutputPanel::outputDirRequested, this, &MainWindow::onOutputDirRequested);
+    connect(m_outputPanel, &OutputPanel::clearRequested, this, &MainWindow::onClearRequested);
+
+    connect(m_converter, &Converter::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
+    connect(m_converter, &Converter::taskFinished, m_outputPanel, &OutputPanel::onTaskFinished);
     connect(m_converter, &Converter::allTasksFinished, this, [this]() {
         m_formatPanel->setConverterEnabled(true);
         }
     );
 
-    connect(m_outputPanel, &OutputPanel::outputDirRequested, this, &MainWindow::onOutputDirRequested);
-
     connect(m_downloader, &Downloader::downloadFinished, this, &MainWindow::onDownloadFinished);
     connect(m_downloader, &Downloader::progressChanged, m_outputPanel, &OutputPanel::updateProgress);
-
-    connect(m_outputPanel, &OutputPanel::clearRequested, this, &MainWindow::onClearRequested);
+    connect(m_downloader, &Downloader::allDownloadsFinished, this, [this]() {
+        m_formatPanel->setConverterEnabled(true);
+        }
+    );
 }
