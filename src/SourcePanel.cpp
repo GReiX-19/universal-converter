@@ -7,6 +7,7 @@
 #include <QMimeData>
 #include <QFileInfo>
 #include <QDir>
+#include <algorithm>
 
 SourcePanel::SourcePanel(QWidget* _parent)
     : QWidget(_parent)
@@ -22,25 +23,26 @@ QList<SourceFile> SourcePanel::files() const {
     return m_sourceFiles;
 }
 void SourcePanel::setFormatForFile(const QString& _path, const QString& _format) {
+    setFormatForFiles({ _path }, _format);
+}
+void SourcePanel::setFormatForFiles(const QStringList& _paths, const QString& _format) {
     for (auto& sf : m_sourceFiles) {
-        if (sf.path == _path) {
+        if (_paths.contains(sf.path))
             sf.selectedFormat = _format;
-            break;
-        }
     }
 
     rebuildList();
 }
-QString SourcePanel::activeFilePath() const {
-    auto* item = m_fileList->currentItem();
-    if (!item)
-        return {};
+QStringList SourcePanel::activeFilePaths() const {
+    QStringList paths;
 
-    const int idx = item->data(Qt::UserRole).toInt();
-    if (idx < 0 or idx >= m_sourceFiles.size())
-        return {};
+    for (auto* item : m_fileList->selectedItems()) {
+        const int idx = item->data(Qt::UserRole).toInt();
+        if (idx >= 0 and idx < m_sourceFiles.size())
+            paths << m_sourceFiles.at(idx).path;
+    }
 
-    return m_sourceFiles.at(idx).path;
+    return paths;
 }
 
 void SourcePanel::dragEnterEvent(QDragEnterEvent* _event) {
@@ -77,24 +79,27 @@ void SourcePanel::onAddClicked() {
     emitFilesChanged();
 }
 void SourcePanel::onRemoveClicked() {
-    auto* item = m_fileList->currentItem();
-    if (!item)
+    QList<int> idxsToRemove;
+
+    for (auto* item : m_fileList->selectedItems()) {
+        const int idx = item->data(Qt::UserRole).toInt();
+        if (idx >= 0 and idx < m_sourceFiles.size())
+            idxsToRemove << idx;
+    }
+
+    if (idxsToRemove.isEmpty())
         return;
 
-    const int idx = item->data(Qt::UserRole).toInt();
-    if (idx < 0 or idx >= m_sourceFiles.size())
-        return;
+    std::sort(idxsToRemove.rbegin(), idxsToRemove.rend());
 
-    m_sourceFiles.removeAt(idx);
+    for (int idx : idxsToRemove)
+        m_sourceFiles.removeAt(idx);
+
     emitFilesChanged();
     rebuildList();
 }
-void SourcePanel::onItemClicked(QListWidgetItem* _item) {
-    const int idx = _item->data(Qt::UserRole).toInt();
-    if (idx < 0 or idx >= m_sourceFiles.size())
-        return;
-
-    emit fileSelected(m_sourceFiles.at(idx).path);
+void SourcePanel::onSelectionChanged() {
+    emit selectionChanged(activeFilePaths());
 }
 
 void SourcePanel::setupUI() {
@@ -108,6 +113,7 @@ void SourcePanel::setupUI() {
 
     m_fileList->setTextElideMode(Qt::ElideMiddle);
     m_fileList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_fileList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     layout->addWidget(m_fileList, 1);
 
     auto* buttonLayout = new QHBoxLayout();
@@ -117,7 +123,7 @@ void SourcePanel::setupUI() {
 
     connect(m_addButton, &QPushButton::clicked, this, &SourcePanel::onAddClicked);
     connect(m_removeButton, &QPushButton::clicked, this, &SourcePanel::onRemoveClicked);
-    connect(m_fileList, &QListWidget::itemClicked, this, &SourcePanel::onItemClicked);
+    connect(m_fileList, &QListWidget::itemClicked, this, &SourcePanel::onSelectionChanged);
 }
 bool SourcePanel::isUrl(const QString& _text) const {
     return _text.startsWith("http://") or _text.startsWith("https://");
@@ -140,11 +146,11 @@ void SourcePanel::emitFilesChanged() {
     emit filesChanged(paths);
 }
 void SourcePanel::rebuildList() {
-    QString previouslySelectedPath;
-    if (auto* current = m_fileList->currentItem()) {
-        const int idx = current->data(Qt::UserRole).toInt();
+    QStringList previouslySelectedPaths;
+    for (auto* item : m_fileList->selectedItems()) {
+        const int idx = item->data(Qt::UserRole).toInt();
         if (idx >= 0 and idx < m_sourceFiles.size())
-            previouslySelectedPath = m_sourceFiles.at(idx).path;
+            previouslySelectedPaths << m_sourceFiles.at(idx).path;
     }
 
     m_fileList->clear();
@@ -166,7 +172,7 @@ void SourcePanel::rebuildList() {
     };
 
     QListWidgetItem* firstSelectableItem = nullptr;
-    QListWidgetItem* itemToRestore = nullptr;
+    QList<QListWidgetItem*> itemsToRestore;
 
     for (const FileCategory category : sectionOrder) {
         if (!grouped.contains(category))
@@ -193,21 +199,20 @@ void SourcePanel::rebuildList() {
 
             if (!firstSelectableItem)
                 firstSelectableItem = item;
-            if (!previouslySelectedPath.isEmpty() and sf.path == previouslySelectedPath)
-                itemToRestore = item;
+            if (previouslySelectedPaths.contains(sf.path))
+                itemsToRestore << item;
         }
     }
 
-    if (itemToRestore) {
-        m_fileList->setCurrentItem(itemToRestore);
+    if (!itemsToRestore.isEmpty()) {
+        for (auto* item : itemsToRestore)
+            item->setSelected(true);
     }
-    else if (firstSelectableItem) {
-        m_fileList->setCurrentItem(firstSelectableItem);
+    else if (previouslySelectedPaths.isEmpty() and firstSelectableItem) {
+        firstSelectableItem->setSelected(true);
+    }
 
-        const int idx = firstSelectableItem->data(Qt::UserRole).toInt();
-        if (idx >= 0 and idx < m_sourceFiles.size())
-            emit fileSelected(m_sourceFiles.at(idx).path);
-    }
+    emit selectionChanged(activeFilePaths());
 }
 QString SourcePanel::sectionTitleFor(FileCategory _category) const {
     switch (_category) {

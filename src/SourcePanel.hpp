@@ -24,11 +24,12 @@ public:
 
     QList<SourceFile> files() const;
     void setFormatForFile(const QString& _path, const QString& _format);
-    QString activeFilePath() const;
+    void setFormatForFiles(const QStringList& _paths, const QString& _format);
+    QStringList activeFilePaths() const;
 
 signals:
     void filesChanged(const QStringList& _files);
-    void fileSelected(const QString& _path);
+    void selectionChanged(const QStringList& _paths);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* _event) override;
@@ -37,7 +38,7 @@ protected:
 private slots:
     void onAddClicked();
     void onRemoveClicked();
-    void onItemClicked(QListWidgetItem* _item);
+    void onSelectionChanged();
 
 private:
     void setupUI();

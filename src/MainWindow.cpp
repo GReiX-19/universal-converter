@@ -33,25 +33,41 @@ void MainWindow::onFilesChanged(const QStringList& _files) {
 
     m_formatPanel->updateCompatibility(_files);
 }
-void MainWindow::onFileSelected(const QString& _path) {
-    m_activeFilePath = _path;
-
+void MainWindow::onSelectionChanged(const QStringList& _paths) {
+    m_activeFilePaths = _paths;
     m_formatPanel->resetCompatibility();
-    m_formatPanel->updateCompatibility({ _path });
+
+    if (_paths.isEmpty())
+        return;
+
+    m_formatPanel->updateCompatibility(_paths);
 
     const auto sourceFiles = m_sourcePanel->files();
+    QString commonFormat;
+    bool first = true;
+    bool allSame = true;
+
     for (const auto& sf : sourceFiles) {
-        if (sf.path == _path) {
-            m_formatPanel->highlightFormat(sf.selectedFormat);
+        if (!_paths.contains(sf.path))
+            continue;
+
+        if (first) {
+            commonFormat = sf.selectedFormat;
+            first = false;
+        }
+        else if (sf.selectedFormat != commonFormat) {
+            allSame = false;
             break;
         }
     }
+
+    m_formatPanel->highlightFormat(allSame ? commonFormat : QString());
 }
 void MainWindow::onFormatSelected(const QString& _format) {
-    if (m_activeFilePath.isEmpty())
+    if (m_activeFilePaths.isEmpty())
         return;
 
-    m_sourcePanel->setFormatForFile(m_activeFilePath, _format);
+    m_sourcePanel->setFormatForFiles(m_activeFilePaths, _format);
     m_formatPanel->highlightFormat(_format);
 }
 void MainWindow::onConvertRequested() {
@@ -143,7 +159,7 @@ void MainWindow::setupLayout()
 }
 void MainWindow::connectPanels() {
     connect(m_sourcePanel, &SourcePanel::filesChanged, this, &MainWindow::onFilesChanged);
-    connect(m_sourcePanel, &SourcePanel::fileSelected, this, &MainWindow::onFileSelected);
+    connect(m_sourcePanel, &SourcePanel::selectionChanged, this, &MainWindow::onSelectionChanged);
     connect(m_formatPanel, &FormatPanel::formatSelected, this, &MainWindow::onFormatSelected);
     connect(m_formatPanel, &FormatPanel::convertRequested, this, &MainWindow::onConvertRequested);
     connect(m_formatPanel, &FormatPanel::convertRequested, this, [this]() {
