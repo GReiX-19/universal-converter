@@ -2,13 +2,26 @@
 
 #include <QRegularExpression>
 #include <QDir>
+#include <QMessageBox>
+
+#ifdef Q_OS_UNIX
+#include <csignal>
+#include <sys/types.h>
+#endif
 
 Downloader::Downloader(QObject* _parent)
     : QObject(_parent)
     , m_process(new QProcess(this))
+    , m_tempDir(QDir::tempPath() + "/universal-converter-temp")
 {
     connect(m_process, &QProcess::readyReadStandardOutput, this, &Downloader::onReadyReadStandardOutput);
     connect(m_process, &QProcess::finished, this, &Downloader::onProcessFinished);
+
+#ifdef Q_OS_UNIX
+    m_process->setChildProcessModifier([]() {
+        ::setpgid(0, 0);
+        });
+#endif
 }
 
 void Downloader::enqueue(const DownloadTask& _task) {
@@ -22,12 +35,33 @@ void Downloader::cancelAll() {
     m_queue.clear();
 
     if (m_process->state() != QProcess::NotRunning) {
+        const qint64 pid = m_process->processId();
+
+#ifdef Q_OS_UNIX
+        if (pid > 0)
+            ::kill(-static_cast<pid_t>(pid), SIGTERM);
+#else
         m_process->terminate();
-        if (!m_process->waitForFinished(2000))
+#endif
+
+        if (!m_process->waitForFinished(2000)) {
+#ifdef Q_OS_UNIX
+            if (pid > 0)
+                ::kill(-static_cast<pid_t>(pid), SIGKILL);
+#else
             m_process->kill();
+#endif
+        }
     }
 
     m_busy = false;
+
+    if (m_tempDir.isEmpty() or !m_tempDir.startsWith(QDir::tempPath())) {
+        qWarning() << "Refusing to remove suspicious temp path: " << m_tempDir;
+        return;
+    }
+
+    QDir(m_tempDir).removeRecursively();
 }
 
 void Downloader::onReadyReadStandardOutput() {
@@ -67,10 +101,13 @@ void Downloader::startNext() {
     m_busy = true;
     m_currentTask = m_queue.dequeue();
 
-    const QString outputTemplate = m_currentTask.outputDir + "/%(title)s.%(ext)s";
+    QDir().mkpath(m_tempDir);
 
     QStringList args;
-    args << m_currentTask.url << "-o" << outputTemplate << "--newline";
+    args << m_currentTask.url << "-o" << "%(title)s.%(ext)s"
+        << "--paths" << ("home:" + m_currentTask.outputDir)
+        << "--paths" << ("temp:" + m_tempDir)
+        << "--newline";
 
     if (isAudioFormat(m_currentTask.format)) {
         args << "--extract-audio" << "--audio-format" << m_currentTask.format.toLower();

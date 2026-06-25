@@ -38,6 +38,7 @@ private:
     QProcess* m_process;
     DownloadTask m_currentTask;
     QQueue<DownloadTask> m_queue;
+    QString m_tempDir;
     bool m_cancelled = false;
     bool m_busy = false;
 };
