@@ -138,6 +138,12 @@ void MainWindow::onClearRequested() {
     m_formatPanel->setConverterEnabled(true);
 }
 
+void MainWindow::closeEvent(QCloseEvent* _event) {
+    m_converter->cancelAll();
+    m_downloader->cancelAll();
+    QMainWindow::closeEvent(_event);
+}
+
 void MainWindow::setupUI()
 {
     auto* central = new QWidget(this);

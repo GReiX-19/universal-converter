@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QCloseEvent>
 
 #include "Converter.hpp"
 #include "Downloader.hpp"
@@ -25,6 +26,9 @@ private slots:
     void onOutputDirRequested();
     void onDownloadFinished(const QString& _url, bool _success);
     void onClearRequested();
+
+protected:
+    void closeEvent(QCloseEvent* _event) override;
 
 private:
     void setupUI();
