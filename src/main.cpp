@@ -2,7 +2,6 @@
 #include <QMessageBox>
 
 #include "MainWindow.hpp"
-#include "DependencyChecker.hpp"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
@@ -19,7 +18,7 @@ int main(int argc, char* argv[]) {
         QMessageBox::warning(nullptr, "Absent dependencies", "The following utilities were not found:\n\n" + missing.join("\n\n"));
     }
 
-    MainWindow window;
+    MainWindow window(statuses);
     window.show();
 
     return app.exec();

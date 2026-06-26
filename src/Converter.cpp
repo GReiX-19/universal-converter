@@ -35,6 +35,13 @@ void Converter::cancelAll() {
     m_busy = false;
 }
 
+void Converter::setFFmpegPath(const QString& _path) {
+    m_ffmpegPath = _path;
+}
+void Converter::setSofficePath(const QString& _path) {
+    m_sofficePath = _path;
+}
+
 void Converter::startNext() {
     if (m_queue.isEmpty()) {
         m_busy = false;
@@ -54,13 +61,13 @@ void Converter::startNext() {
     switch (tool) {
     case ConverterTool::FFmpeg:
         args << "-i" << m_currentTask.inputPath << "-y" << m_currentTask.outputPath;
-        m_process->start("ffmpeg", args);
+        m_process->start(m_ffmpegPath, args);
         break;
     case ConverterTool::LibreOffice:
         args << "--headless" << "--convert-to" << m_currentTask.format.toLower()
             << "--outdir" << QFileInfo(m_currentTask.outputPath).dir().absolutePath()
             << m_currentTask.inputPath;
-        m_process->start("soffice", args);
+        m_process->start(m_sofficePath, args);
         break;
     case ConverterTool::None:
         emit taskFinished(QFileInfo(m_currentTask.inputPath).fileName(), false);

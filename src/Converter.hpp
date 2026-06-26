@@ -21,6 +21,9 @@ public:
     void enqueue(const ConversionTask& _task);
     void cancelAll();
 
+    void setFFmpegPath(const QString& _path);
+    void setSofficePath(const QString& _path);
+
 signals:
     void progressChanged(const QString& _fileName, quint32 _progress);
     void taskFinished(const QString& _fileName, bool _success);
@@ -37,7 +40,11 @@ private:
     QProcess* m_process;
     ConversionTask m_currentTask;
     QQueue<ConversionTask> m_queue;
+
     double m_duration = 0.0;
     bool m_busy = false;
     bool m_cancelled = false;
+
+    QString m_ffmpegPath = "ffmpeg";
+    QString m_sofficePath = "soffice";
 };

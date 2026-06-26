@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
-MainWindow::MainWindow(QWidget* _parent)
+MainWindow::MainWindow(QMap<Dependency, DependencyStatus>& _dependencyStatuses, QWidget* _parent)
     : QMainWindow(_parent)
     , m_sourcePanel(new SourcePanel(this))
     , m_formatPanel(new FormatPanel(this))
@@ -22,6 +22,13 @@ MainWindow::MainWindow(QWidget* _parent)
     setWindowTitle("Universal Converter");
     setMinimumSize(900, 560);
     setupUI();
+
+    if (_dependencyStatuses[Dependency::FFmpeg].found)
+        m_converter->setFFmpegPath(_dependencyStatuses[Dependency::FFmpeg].resolvedPath);
+    if (_dependencyStatuses[Dependency::FFmpeg].found)
+        m_converter->setSofficePath(_dependencyStatuses[Dependency::LibreOffice].resolvedPath);
+    if (_dependencyStatuses[Dependency::FFmpeg].found)
+        m_downloader->setYtdlpPath(_dependencyStatuses[Dependency::YtDlp].resolvedPath);
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {

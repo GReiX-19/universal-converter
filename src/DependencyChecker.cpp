@@ -1,6 +1,8 @@
 #include "DependencyChecker.hpp"
 
 #include <QProcess>
+#include <QCoreApplication>
+#include <optional>
 
 QString DependencyChecker::executableName(Dependency _dep) {
     switch (_dep) {
@@ -38,20 +40,27 @@ QString DependencyChecker::installHintFor(Dependency _dep) {
 DependencyStatus DependencyChecker::check(Dependency _dep) {
     const QString exe = executableName(_dep);
 
-    QProcess process;
-    process.start(exe, { "--version" });
-    const bool started = process.waitForStarted(1000);
+    auto tryRun = [](const QString& _path) -> std::optional<QString> {
+        QProcess process;
+        process.start(_path, { "--version" });
+        if (!process.waitForFinished(1000))
+            return std::nullopt;
 
-    if (!started) {
-        return { false, {} , installHintFor(_dep) };
+        process.waitForFinished(3000);
+        const QString output = process.readAllStandardOutput();
+        return output.split('\n').value(0).trimmed();
+    };
+
+    if (auto version = tryRun(exe))
+        return { true, *version, {}, exe };
+
+    if (_dep == Dependency::FFmpeg or _dep == Dependency::YtDlp) {
+        const QString bundledPath = QCoreApplication::applicationDirPath() + "/" + exe;
+        if (auto version = tryRun(bundledPath))
+            return { true, *version, {}, bundledPath };
     }
 
-    process.waitForFinished(3000);
-    const QString output = process.readAllStandardOutput();
-
-    const QString version = output.split('\n').value(0).trimmed();
-
-    return { true, version, {} };
+    return { false, {}, installHintFor(_dep), {} };
 }
 
 QMap<Dependency, DependencyStatus> DependencyChecker::checkAll() {

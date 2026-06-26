@@ -13,6 +13,7 @@ struct DependencyStatus {
     bool found;
     QString version;
     QString installHint;
+    QString resolvedPath;
 };
 
 class DependencyChecker {

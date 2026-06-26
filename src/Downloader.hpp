@@ -21,6 +21,8 @@ public:
     void enqueue(const DownloadTask& _task);
     void cancelAll();
 
+    void setYtdlpPath(const QString& _path);
+
 signals:
     void progressChanged(const QString& _label, quint32 _progress);
     void downloadFinished(const QString& _filePath, bool _success);
@@ -39,6 +41,9 @@ private:
     DownloadTask m_currentTask;
     QQueue<DownloadTask> m_queue;
     QString m_tempDir;
+
     bool m_cancelled = false;
     bool m_busy = false;
+
+    QString m_ytdlpPath = "yt-dlp";
 };

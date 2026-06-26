@@ -1,10 +1,12 @@
 #pragma once
 
-#include <QMainWindow>
-#include <QCloseEvent>
-
 #include "Converter.hpp"
 #include "Downloader.hpp"
+#include "DependencyChecker.hpp"
+
+#include <QMainWindow>
+#include <QCloseEvent>
+#include <QMap>
 
 class SourcePanel;
 class FormatPanel;
@@ -15,7 +17,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* _parent = nullptr);
+    explicit MainWindow(QMap<Dependency, DependencyStatus>& _dependencyStatuses, QWidget* _parent = nullptr);
     ~MainWindow() override = default;
 
 private slots:

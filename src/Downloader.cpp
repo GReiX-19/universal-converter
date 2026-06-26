@@ -65,6 +65,10 @@ void Downloader::cancelAll() {
     QDir(m_tempDir).removeRecursively();
 }
 
+void Downloader::setYtdlpPath(const QString& _path) {
+    m_ytdlpPath = _path;
+}
+
 void Downloader::onReadyReadStandardOutput() {
     if (m_cancelled)
         return;
@@ -117,7 +121,7 @@ void Downloader::startNext() {
         args << "--recode-video" << m_currentTask.format.toLower();
     }
 
-    m_process->start("yt-dlp", args);
+    m_process->start(m_ytdlpPath, args);
 }
 bool Downloader::isAudioFormat(const QString& _format) const {
     const QString& fmt = _format.toLower();
