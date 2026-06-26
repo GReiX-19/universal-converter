@@ -8,7 +8,13 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
-qt_add_executable(UniversalConverter 
+set(GUI_TYPE "")
+
+if (WIN32)
+    set(GUI_TYPE "WIN32")
+endif()
+
+qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     src/main.cpp
     src/MainWindow.cpp
     src/SourcePanel.cpp
@@ -20,12 +26,19 @@ qt_add_executable(UniversalConverter
     src/Downloader.cpp
 )
 
-target_link_libraries(UniversalConverter PRIVATE Qt6::Core Qt6::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)
 
 if(WIN32)
-    # set_target_properties(UniversalConverter PROPERTIES WIN32_EXECUTABLE ON)
-    # add_custom_command(TARGET UniversalConverter POST_BUILD
-    #     COMMAND ${Qt6_DIR}/../../../bin/windeployqt.exe
-    #     "$<TARGET_FILE:UniversalConverter>"
-    # )
+    get_target_property(_qt_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qt_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${WINDEPLOYQT_EXECUTABLE} 
+            --dir $<TARGET_FILE_DIR:${PROJECT_NAME}> 
+            $<TARGET_FILE:${PROJECT_NAME}>
+            COMMENT "Running windeployqt..."
+        )
+    endif()
 endif()
