@@ -21,10 +21,10 @@ void Converter::enqueue(const ConversionTask& _task) {
         startNext();
 }
 void Converter::cancelAll() {
-    m_cancelled = true;
     m_queue.clear();
 
     if (m_process->state() != QProcess::NotRunning) {
+        m_cancelled = true;
         m_process->terminate();
         if (m_process->waitForFinished(2000))
             m_process->kill();

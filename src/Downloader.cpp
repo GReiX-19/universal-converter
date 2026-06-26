@@ -31,10 +31,11 @@ void Downloader::enqueue(const DownloadTask& _task) {
         startNext();
 }
 void Downloader::cancelAll() {
-    m_cancelled = true;
     m_queue.clear();
 
     if (m_process->state() != QProcess::NotRunning) {
+        m_cancelled = true;
+
         const qint64 pid = m_process->processId();
 
 #ifdef Q_OS_UNIX
