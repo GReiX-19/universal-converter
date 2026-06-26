@@ -76,3 +76,8 @@ ui_*.h
 
 # VS Code
 .vscode/
+
+# Visual Studio
+.vs/
+CMakePresets.json
+CMakeUserPresets.json
