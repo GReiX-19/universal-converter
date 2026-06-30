@@ -2,18 +2,21 @@
 
 #include <QProcess>
 #include <QCoreApplication>
+#include <QDebug>
 #include <optional>
 
 QString DependencyChecker::executableName(Dependency _dep) {
     switch (_dep) {
-    case Dependency::FFmpeg: return "ffmpeg";
+    case Dependency::FFmpeg: 
+        return "ffmpeg";
     case Dependency::LibreOffice:
 #ifdef Q_OS_WIN
         return "soffice.exe";
 #else
         return "soffice";
 #endif
-    case Dependency::YtDlp: return "yt-dlp";
+    case Dependency::YtDlp:
+        return "yt-dlp";
     }
 
     return {};
@@ -40,13 +43,15 @@ QString DependencyChecker::installHintFor(Dependency _dep) {
 DependencyStatus DependencyChecker::check(Dependency _dep) {
     const QString exe = executableName(_dep);
 
+    qDebug() << "Checking for " << exe << "...";
+
     auto tryRun = [](const QString& _path) -> std::optional<QString> {
         QProcess process;
         process.start(_path, { "--version" });
-        if (!process.waitForFinished(1000))
+        if (!process.waitForFinished(3000))
             return std::nullopt;
 
-        process.waitForFinished(3000);
+        process.waitForFinished(2000);
         const QString output = process.readAllStandardOutput();
         return output.split('\n').value(0).trimmed();
     };
