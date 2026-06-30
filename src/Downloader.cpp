@@ -9,6 +9,12 @@
 #include <sys/types.h>
 #endif
 
+#ifdef Q_OS_WIN
+#define WIN32_LEAN_AND_MEAN  
+#define NOMINMAX            
+#include <windows.h>
+#endif
+
 Downloader::Downloader(QObject* _parent)
     : QObject(_parent)
     , m_process(new QProcess(this))
@@ -21,6 +27,21 @@ Downloader::Downloader(QObject* _parent)
     m_process->setChildProcessModifier([]() {
         ::setpgid(0, 0);
         });
+#else
+    m_jobHandle = ::CreateJobObject(nullptr, nullptr);
+
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION info{};
+    info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    ::SetInformationJobObject(static_cast<HANDLE>(m_jobHandle), JobObjectExtendedLimitInformation, &info, sizeof(info));
+#endif
+}
+Downloader::~Downloader() {
+#ifdef Q_OS_WIN
+    if (m_jobHandle) {
+        ::TerminateJobObject(static_cast<HANDLE>(m_jobHandle), 1);
+        m_process->waitForFinished(2000);
+        ::CloseHandle(static_cast<HANDLE>(m_jobHandle));
+    }
 #endif
 }
 
@@ -50,7 +71,8 @@ void Downloader::cancelAll() {
             if (pid > 0)
                 ::kill(-static_cast<pid_t>(pid), SIGKILL);
 #else
-            m_process->kill();
+            if (m_jobHandle)
+                ::TerminateJobObject(static_cast<HANDLE>(m_jobHandle), 1);
 #endif
         }
     }
@@ -122,6 +144,12 @@ void Downloader::startNext() {
     }
 
     m_process->start(m_ytdlpPath, args);
+
+#ifdef Q_OS_WIN
+    if (m_process->waitForStarted(2000) && m_jobHandle) {
+        ::AssignProcessToJobObject(static_cast<HANDLE>(m_jobHandle), (HANDLE)m_process->processId());
+    }
+#endif
 }
 bool Downloader::isAudioFormat(const QString& _format) const {
     const QString& fmt = _format.toLower();

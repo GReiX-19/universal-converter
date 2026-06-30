@@ -17,6 +17,7 @@ class Downloader : public QObject {
 
 public:
     explicit Downloader(QObject* _parent = nullptr);
+    ~Downloader();
 
     void enqueue(const DownloadTask& _task);
     void cancelAll();
@@ -46,4 +47,6 @@ private:
     bool m_busy = false;
 
     QString m_ytdlpPath = "yt-dlp";
+
+    void* m_jobHandle = nullptr;
 };
