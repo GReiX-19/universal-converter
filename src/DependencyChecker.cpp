@@ -7,7 +7,7 @@
 
 QString DependencyChecker::executableName(Dependency _dep) {
     switch (_dep) {
-    case Dependency::FFmpeg: 
+    case Dependency::FFmpeg:
         return "ffmpeg";
     case Dependency::LibreOffice:
 #ifdef Q_OS_WIN
@@ -48,23 +48,27 @@ DependencyStatus DependencyChecker::check(Dependency _dep) {
     auto tryRun = [](const QString& _path) -> std::optional<QString> {
         QProcess process;
         process.start(_path, { "--version" });
-        if (!process.waitForFinished(3000))
+        if (!process.waitForStarted(1000))
             return std::nullopt;
 
-        process.waitForFinished(2000);
+        process.waitForFinished(3000);
         const QString output = process.readAllStandardOutput();
         return output.split('\n').value(0).trimmed();
-    };
+        };
 
-    if (auto version = tryRun(exe))
+    if (auto version = tryRun(exe)) {
+        qWarning() << "[DependencyChecker]" << exe << "found in PATH:" << exe;
         return { true, *version, {}, exe };
+    }
 
     if (_dep == Dependency::FFmpeg or _dep == Dependency::YtDlp) {
         const QString bundledPath = QCoreApplication::applicationDirPath() + "/" + exe;
-        if (auto version = tryRun(bundledPath))
+        if (auto version = tryRun(bundledPath)) {
+            qWarning() << "[DependencyChecker]" << exe << "not in PATH, using bundled:" << bundledPath;
             return { true, *version, {}, bundledPath };
+        }
     }
-
+    qWarning() << "[DependencyChecker]" << exe << "not found anywhere";
     return { false, {}, installHintFor(_dep), {} };
 }
 

@@ -23,6 +23,7 @@ public:
     void cancelAll();
 
     void setYtdlpPath(const QString& _path);
+    void setFFmpegPath(const QString& _path);
 
 signals:
     void progressChanged(const QString& _label, quint32 _progress);
@@ -47,6 +48,7 @@ private:
     bool m_busy = false;
 
     QString m_ytdlpPath = "yt-dlp";
+    QString m_ffmpegPath = "ffmpeg";
 
     void* m_jobHandle = nullptr;
 };

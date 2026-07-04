@@ -25,10 +25,12 @@ MainWindow::MainWindow(QMap<Dependency, DependencyStatus>& _dependencyStatuses, 
 
     if (_dependencyStatuses[Dependency::FFmpeg].found)
         m_converter->setFFmpegPath(_dependencyStatuses[Dependency::FFmpeg].resolvedPath);
-    if (_dependencyStatuses[Dependency::FFmpeg].found)
+    if (_dependencyStatuses[Dependency::LibreOffice].found)
         m_converter->setSofficePath(_dependencyStatuses[Dependency::LibreOffice].resolvedPath);
-    if (_dependencyStatuses[Dependency::FFmpeg].found)
+    if (_dependencyStatuses[Dependency::YtDlp].found)
         m_downloader->setYtdlpPath(_dependencyStatuses[Dependency::YtDlp].resolvedPath);
+    if (_dependencyStatuses[Dependency::FFmpeg].found)
+        m_downloader->setFFmpegPath(_dependencyStatuses[Dependency::FFmpeg].resolvedPath);
 }
 
 void MainWindow::onFilesChanged(const QStringList& _files) {

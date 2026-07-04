@@ -90,6 +90,9 @@ void Downloader::cancelAll() {
 void Downloader::setYtdlpPath(const QString& _path) {
     m_ytdlpPath = _path;
 }
+void Downloader::setFFmpegPath(const QString& _path) {
+    m_ffmpegPath = _path;
+}
 
 void Downloader::onReadyReadStandardOutput() {
     if (m_cancelled)
@@ -142,6 +145,8 @@ void Downloader::startNext() {
     else {
         args << "--recode-video" << m_currentTask.format.toLower();
     }
+
+    args << "--ffmpeg-location" << m_ffmpegPath;
 
     m_process->start(m_ytdlpPath, args);
 
