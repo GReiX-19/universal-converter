@@ -57,18 +57,16 @@ DependencyStatus DependencyChecker::check(Dependency _dep) {
         };
 
     if (auto version = tryRun(exe)) {
-        qWarning() << "[DependencyChecker]" << exe << "found in PATH:" << exe;
         return { true, *version, {}, exe };
     }
 
     if (_dep == Dependency::FFmpeg or _dep == Dependency::YtDlp) {
         const QString bundledPath = QCoreApplication::applicationDirPath() + "/" + exe;
         if (auto version = tryRun(bundledPath)) {
-            qWarning() << "[DependencyChecker]" << exe << "not in PATH, using bundled:" << bundledPath;
             return { true, *version, {}, bundledPath };
         }
     }
-    qWarning() << "[DependencyChecker]" << exe << "not found anywhere";
+
     return { false, {}, installHintFor(_dep), {} };
 }
 
