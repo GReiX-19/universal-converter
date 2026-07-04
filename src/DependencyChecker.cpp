@@ -3,7 +3,23 @@
 #include <QProcess>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSettings>
+#include <QDir>
 #include <optional>
+#include <Windows.h>
+
+#ifdef Q_OS_WIN
+static QString libreOfficePathFromRegistry() {
+    QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\LibreOffice\\UNO\\InstallPath", QSettings::NativeFormat);
+
+    const QString installPath = registry.value(".").toString();
+    
+    if (installPath.isEmpty())
+        return {};
+
+    return QDir::toNativeSeparators(installPath + "/soffice.exe");
+}
+#endif
 
 QString DependencyChecker::executableName(Dependency _dep) {
     switch (_dep) {
@@ -47,12 +63,26 @@ DependencyStatus DependencyChecker::check(Dependency _dep) {
 
     auto tryRun = [](const QString& _path) -> std::optional<QString> {
         QProcess process;
+        process.setProcessChannelMode(QProcess::MergedChannels);
+
+#ifdef Q_OS_WIN
+        process.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments* args) {
+            args->flags |= CREATE_NO_WINDOW;
+            args->startupInfo->dwFlags |= STARTF_USESHOWWINDOW;
+            args->startupInfo->wShowWindow = SW_HIDE;
+            });
+#endif
+
         process.start(_path, { "--version" });
         if (!process.waitForStarted(1000))
             return std::nullopt;
 
         process.waitForFinished(3000);
         const QString output = process.readAllStandardOutput();
+
+        if (process.state() != QProcess::NotRunning)
+            process.kill();
+
         return output.split('\n').value(0).trimmed();
         };
 
@@ -66,6 +96,18 @@ DependencyStatus DependencyChecker::check(Dependency _dep) {
             return { true, *version, {}, bundledPath };
         }
     }
+
+#ifdef Q_OS_WIN
+    if (_dep == Dependency::LibreOffice) {
+        const QString regPath = libreOfficePathFromRegistry();
+        qDebug() << regPath;
+        if (!regPath.isEmpty() and QFile::exists(regPath)) {
+            if (auto version = tryRun(regPath)) {
+                return { true, *version, {}, regPath };
+            }
+        }
+    }
+#endif
 
     return { false, {}, installHintFor(_dep), {} };
 }
