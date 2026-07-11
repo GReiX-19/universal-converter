@@ -65,9 +65,9 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     openButton->setToolTip("Show in folder");
 
     connect(openButton, &QPushButton::clicked, this, [outputPath]() {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(outputPath).dir().absolutePath()));
-        }
-    );
+        const QString dirPath = QFileInfo(outputPath).isDir() ? outputPath : QFileInfo(outputPath).dir().absolutePath();
+        QDesktopServices::openUrl(QUrl::fromLocalFile(dirPath));
+    });
 
     row->addLayout(infoCol, 1);
     row->addWidget(statusLabel);

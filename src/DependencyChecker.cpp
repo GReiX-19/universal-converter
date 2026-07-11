@@ -24,7 +24,11 @@ static QString libreOfficePathFromRegistry() {
 QString DependencyChecker::executableName(Dependency _dep) {
     switch (_dep) {
     case Dependency::FFmpeg:
+#ifdef Q_OS_WIN
+        return "ffmpeg.exe";
+#else
         return "ffmpeg";
+#endif
     case Dependency::LibreOffice:
 #ifdef Q_OS_WIN
         return "soffice.exe";
@@ -32,7 +36,11 @@ QString DependencyChecker::executableName(Dependency _dep) {
         return "soffice";
 #endif
     case Dependency::YtDlp:
+#ifdef Q_OS_WIN
+        return "yt-dlp.exe";
+#else
         return "yt-dlp";
+#endif
     }
 
     return {};
@@ -100,7 +108,6 @@ DependencyStatus DependencyChecker::check(Dependency _dep) {
 #ifdef Q_OS_WIN
     if (_dep == Dependency::LibreOffice) {
         const QString regPath = libreOfficePathFromRegistry();
-        qDebug() << regPath;
         if (!regPath.isEmpty() and QFile::exists(regPath)) {
             if (auto version = tryRun(regPath)) {
                 return { true, *version, {}, regPath };
