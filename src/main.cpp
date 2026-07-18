@@ -6,6 +6,9 @@
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
+    QCoreApplication::setApplicationName("UniversalConverter");
+    QCoreApplication::setApplicationVersion(PROJECT_VERSION);
+
     auto statuses = DependencyChecker::checkAll();
 
     QStringList missing;

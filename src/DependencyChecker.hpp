@@ -18,10 +18,20 @@ struct DependencyStatus {
 
 class DependencyChecker {
 public:
-    static DependencyStatus check(Dependency _dep);
     static QMap<Dependency, DependencyStatus> checkAll();
 
 private:
     static QString executableName(Dependency _dep);
     static QString installHintFor(Dependency _dep);
+
+    static DependencyStatus fullCheck(Dependency _dep);
+
+    static QString cacheFilePath();
+    static bool loadCache(QMap<Dependency, DependencyStatus>& _out);
+    static void saveCache(const QMap<Dependency, DependencyStatus>& _statuses);
+
+    static bool quickValidate(const DependencyStatus& _cached);
+
+    static QString dependencyKey(Dependency _dep);
+
 };

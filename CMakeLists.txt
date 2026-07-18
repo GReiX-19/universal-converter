@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(UniversalConverter VERSION 0.1 LANGUAGES CXX)
+project(UniversalConverter VERSION 0.1.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -33,6 +33,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/Debug"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/Release"
 )
+
+target_compile_definitions(UniversalConverter PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 set(TOOLS_CACHE_DIR "${CMAKE_BINARY_DIR}/external-tools")
 file(MAKE_DIRECTORY "${TOOLS_CACHE_DIR}")
