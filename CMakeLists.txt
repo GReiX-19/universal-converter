@@ -24,6 +24,7 @@ qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     src/ConversionRules.cpp
     src/DependencyChecker.cpp
     src/Downloader.cpp
+    resources/resources.qrc
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)
@@ -102,6 +103,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 )
 
 if(WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE resources/app.rc)
+
     get_target_property(_qt_qmake_executable Qt6::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qt_qmake_executable}" DIRECTORY)
     find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")

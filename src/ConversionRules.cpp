@@ -14,6 +14,7 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
     {"flac", FileCategory::Audio},
     {"ogg", FileCategory::Audio},
     {"aac", FileCategory::Audio},
+    {"m4a", FileCategory::Audio},
 
     {"jpg", FileCategory::Image},
     {"jpeg", FileCategory::Image},
@@ -27,7 +28,8 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
     {"doc", FileCategory::Document},
     {"odt", FileCategory::Document},
     {"pptx", FileCategory::Document},
-    {"xlsx", FileCategory::Document}
+    {"xlsx", FileCategory::Document},
+    {"md", FileCategory::Document}
 };
 
 const QMap<FileCategory, QStringList> ConversionRules::s_formatsMap = {

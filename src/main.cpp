@@ -9,6 +9,15 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationName("UniversalConverter");
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
 
+    QIcon appIcon;
+    appIcon.addFile(":/icons/icons/universal-converter-icon-16.png");
+    appIcon.addFile(":/icons/icons/universal-converter-icon-32.png");
+    appIcon.addFile(":/icons/icons/universal-converter-icon-48.png");
+    appIcon.addFile(":/icons/icons/universal-converter-icon-128.png");
+    appIcon.addFile(":/icons/icons/universal-converter-icon-256.png");
+
+    app.setWindowIcon(appIcon);
+
     auto statuses = DependencyChecker::checkAll();
 
     QStringList missing;
