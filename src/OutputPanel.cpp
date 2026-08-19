@@ -67,7 +67,7 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     connect(openButton, &QPushButton::clicked, this, [outputPath]() {
         const QString dirPath = QFileInfo(outputPath).isDir() ? outputPath : QFileInfo(outputPath).dir().absolutePath();
         QDesktopServices::openUrl(QUrl::fromLocalFile(dirPath));
-    });
+        });
 
     row->addLayout(infoCol, 1);
     row->addWidget(statusLabel);
@@ -117,6 +117,7 @@ void OutputPanel::setupUI() {
 
     auto* title = new QLabel("Result", this);
     title->setStyleSheet("font-weight: 500; color: gray;");
+    title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
 
     m_outputList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -37,11 +37,11 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
 };
 
 const QMap<FileCategory, QStringList> ConversionRules::s_formatsMap = {
-    {FileCategory::Video, {"MP4", "AVI", "MKV", "MOV", "WEBM", "MPEG", "MP3", "WAV"}},
-    {FileCategory::Audio, {"MP3", "WAV", "FLAC", "OGG", "AAC", "M4A"}},
-    {FileCategory::Image, {"JPG", "JPEG", "PNG", "WEBP", "BMP", "GIF", "HEIC", "ICO"}},
-    {FileCategory::OnlineVideo, {"MP4", "WEBM", "MKV", "MP3", "WAV", "FLAC"}},
-    {FileCategory::Document, {"PDF", "DOCX", "ODT", "TXT", "MD", "PPTX", "XLSX"}}
+    {FileCategory::Video, {"mp4", "avi", "mkv", "mov", "webm", "mpeg", "mp3", "wav", "flac"}},
+    {FileCategory::Audio, {"mp3", "wav", "flac", "ogg", "aac", "m4a"}},
+    {FileCategory::Image, {"jpg", "jpeg", "png", "webp", "bmp", "gif", "heic", "ico"}},
+    {FileCategory::OnlineVideo, {"mp4", "webm", "mkv", "mp3", "wav", "flac"}},
+    {FileCategory::Document, {"pdf", "docx", "odt", "txt", "md", "pptx", "xlsx"}}
 };
 
 FileCategory ConversionRules::categoryOf(const QString& _filePath) {
@@ -75,7 +75,7 @@ bool ConversionRules::isCompatible(const QString& _filePath, const QString& _for
         return false;
 
     const QStringList formats = availableFormats(category);
-    return formats.contains(_format.toUpper());
+    return formats.contains(_format);
 }
 
 bool ConversionRules::isUrl(const QString& _path) {

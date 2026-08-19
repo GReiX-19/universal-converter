@@ -109,6 +109,7 @@ void SourcePanel::setupUI() {
 
     auto* title = new QLabel("Files", this);
     title->setStyleSheet("font-weight: 500; color: grey;");
+    title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
 
     m_fileList->setTextElideMode(Qt::ElideMiddle);
