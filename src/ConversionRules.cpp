@@ -8,6 +8,7 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
     {"mkv", FileCategory::Video},
     {"mov", FileCategory::Video},
     {"webm", FileCategory::Video},
+    {"mpeg", FileCategory::Video},
 
     {"mp3", FileCategory::Audio},
     {"wav", FileCategory::Audio},
@@ -22,6 +23,8 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
     {"webp", FileCategory::Image},
     {"bmp", FileCategory::Image},
     {"gif", FileCategory::Image},
+    {"heic", FileCategory::Image},
+    {"ico", FileCategory::Image},
 
     {"pdf", FileCategory::Document},
     {"docx", FileCategory::Document},
@@ -29,15 +32,16 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
     {"odt", FileCategory::Document},
     {"pptx", FileCategory::Document},
     {"xlsx", FileCategory::Document},
-    {"md", FileCategory::Document}
+    {"md", FileCategory::Document},
+    {"txt", FileCategory::Document}
 };
 
 const QMap<FileCategory, QStringList> ConversionRules::s_formatsMap = {
-    {FileCategory::Video, {"MP4", "AVI", "MKV", "MP3", "WAV"}},
-    {FileCategory::Audio, {"MP3", "WAV", "FLAC", "OGG", "AAC"}},
-    {FileCategory::Image, {"JPG", "JPEG", "PNG", "WEBP", "BMP"}},
-    {FileCategory::OnlineVideo, {"MP4", "WEBM", "MKV", "MP3", "WAV"}},
-    {FileCategory::Document, {"PDF", "DOCX", "ODT"}}
+    {FileCategory::Video, {"MP4", "AVI", "MKV", "MOV", "WEBM", "MPEG", "MP3", "WAV"}},
+    {FileCategory::Audio, {"MP3", "WAV", "FLAC", "OGG", "AAC", "M4A"}},
+    {FileCategory::Image, {"JPG", "JPEG", "PNG", "WEBP", "BMP", "GIF", "HEIC", "ICO"}},
+    {FileCategory::OnlineVideo, {"MP4", "WEBM", "MKV", "MP3", "WAV", "FLAC"}},
+    {FileCategory::Document, {"PDF", "DOCX", "ODT", "TXT", "MD", "PPTX", "XLSX"}}
 };
 
 FileCategory ConversionRules::categoryOf(const QString& _filePath) {

@@ -79,10 +79,10 @@ void FormatPanel::setupUI() {
     title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
 
-    addSection("Video", { "mp4", "avi", "mkv" });
-    addSection("Audio", { "mp3", "wav" });
-    addSection("Documents", { "pdf", "docx" });
-    addSection("Images", { "jpg", "png", "webp" });
+    addSection("Video", ConversionRules::availableFormats(FileCategory::Video));
+    addSection("Audio", ConversionRules::availableFormats(FileCategory::Audio));
+    addSection("Documents", ConversionRules::availableFormats(FileCategory::Document));
+    addSection("Images", ConversionRules::availableFormats(FileCategory::Image));
 
     layout->addWidget(m_formatList, 1);
     layout->addWidget(m_convertButton);

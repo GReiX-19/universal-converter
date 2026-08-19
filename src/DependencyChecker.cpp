@@ -85,7 +85,7 @@ QString DependencyChecker::installHintFor(Dependency _dep) {
 #endif
 
     return {};
-    }
+}
 
 DependencyStatus DependencyChecker::fullCheck(Dependency _dep) {
     const QString exe = executableName(_dep);
@@ -119,7 +119,7 @@ DependencyStatus DependencyChecker::fullCheck(Dependency _dep) {
 
     if (auto version = tryRun(exe)) {
         return { true, *version, {}, exe };
-        }
+    }
 
     if (_dep == Dependency::FFmpeg or _dep == Dependency::YtDlp) {
         const QString bundledPath = QCoreApplication::applicationDirPath() + "/" + exe;
