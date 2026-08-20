@@ -1,60 +1,77 @@
 #include "FormatPanel.hpp"
 
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QListWidgetItem>
 #include <QApplication>
+#include <QScrollArea>
 #include <algorithm>
+
+namespace {
+    int listContentHeight(QListWidget* _list) {
+        int total = _list->frameWidth() * 2;
+
+        for (int i = 0; i < _list->count(); ++i)
+            total += _list->sizeHintForRow(i);
+
+        total += qMax(0, _list->count() - 1) * _list->spacing();
+
+        return total;
+    }
+}
 
 FormatPanel::FormatPanel(QWidget* _parent)
     : QWidget(_parent)
-    , m_formatList(new QListWidget(this))
     , m_convertButton(new QPushButton("Convert", this))
 {
     setupUI();
 }
 
 void FormatPanel::updateCompatibility(const QStringList& _files) {
-    for (size_t i = 0; i < m_formatList->count(); ++i) {
-        auto* item = m_formatList->item(i);
+    for (auto it = m_categoryLists.constBegin(); it != m_categoryLists.constEnd(); ++it) {
+        QListWidget* list = it.value();
+        bool anyCompatible = false;
 
-        if (!(item->flags() & Qt::ItemIsEnabled) and (item->flags() == Qt::NoItemFlags))
-            continue;
+        for (int i = 0; i < list->count(); ++i) {
+            auto* item = list->item(i);
 
-        const QString format = item->data(Qt::UserRole).toString();
-        if (format.isEmpty())
-            continue;
+            const QString format = item->data(Qt::UserRole).toString();
 
-        bool compatible = std::any_of(_files.cbegin(), _files.cend(), [&format](const QString& _file) {
-            return ConversionRules::isCompatible(_file, format);
-            }
-        );
+            bool compatible = std::any_of(_files.cbegin(), _files.cend(), [&format](const QString& _file) {
+                return ConversionRules::isCompatible(_file, format);
+                }
+            );
 
-        item->setFlags(compatible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
-        item->setForeground(compatible ? qApp->palette().text() : qApp->palette().mid());
+            item->setFlags(compatible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
+            item->setForeground(compatible ? qApp->palette().text() : qApp->palette().mid());
+            anyCompatible = anyCompatible or compatible;
+        }
+
+        m_sections[it.key()]->setExpanded(anyCompatible);
+        m_sections[it.key()]->setHightlighted(anyCompatible);
     }
 }
 void FormatPanel::resetCompatibility() {
-    for (size_t i = 0; i < m_formatList->count(); ++i) {
-        auto* item = m_formatList->item(i);
+    for (auto* list : std::as_const(m_categoryLists)) {
+        for (int i = 0; i < list->count(); ++i) {
+            auto* item = list->item(i);
 
-        if (item->data(Qt::UserRole).toString().isEmpty())
-            continue;
+            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            item->setForeground(qApp->palette().text());
+        }
+    }
 
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        item->setForeground(qApp->palette().text());
+    for (auto* section : std::as_const(m_sections)) {
+        section->setExpanded(false);
+        section->setHightlighted(false);
     }
 }
 void FormatPanel::highlightFormat(const QString& _format) {
-    for (size_t i = 0; i < m_formatList->count(); ++i) {
-        auto* item = m_formatList->item(i);
-
-        const QString fmt = item->data(Qt::UserRole).toString();
-        if (fmt.isEmpty())
-            continue;
-
-        const bool isSelected = fmt.compare(_format, Qt::CaseInsensitive) == 0;
-        item->setSelected(isSelected);
+    for (auto* list : std::as_const(m_categoryLists)) {
+        for (int i = 0; i < list->count(); ++i) {
+            auto* item = list->item(i);
+            const QString fmt = item->data(Qt::UserRole).toString();
+            item->setSelected(fmt.compare(_format, Qt::CaseInsensitive) == 0);
+        }
     }
 }
 
@@ -70,36 +87,62 @@ void FormatPanel::onFormatClicked(QListWidgetItem* item) {
 }
 
 void FormatPanel::setupUI() {
-    auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(8);
+    auto* outerLayout = new QVBoxLayout(this);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->setSpacing(8);
 
     auto* title = new QLabel("Format", this);
     title->setStyleSheet("font-weight: 500; color: gray;");
     title->setAlignment(Qt::AlignCenter);
-    layout->addWidget(title);
+    outerLayout->addWidget(title);
 
-    addSection("Video", ConversionRules::availableFormats(FileCategory::Video));
-    addSection("Audio", ConversionRules::availableFormats(FileCategory::Audio));
-    addSection("Documents", ConversionRules::availableFormats(FileCategory::Document));
-    addSection("Images", ConversionRules::availableFormats(FileCategory::Image));
+    auto* scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    layout->addWidget(m_formatList, 1);
-    layout->addWidget(m_convertButton);
+    auto* scrollContent = new QWidget(scrollArea);
+    auto* sectionsLayout = new QVBoxLayout(scrollContent);
+    sectionsLayout->setContentsMargins(0, 0, 0, 0);
+    sectionsLayout->setSpacing(4);
 
-    connect(m_formatList, &QListWidget::itemClicked, this, &FormatPanel::onFormatClicked);
+    addSection(FileCategory::Video, "Video", sectionsLayout);
+    addSection(FileCategory::Audio, "Audio", sectionsLayout);
+    addSection(FileCategory::Document, "Document", sectionsLayout);
+    addSection(FileCategory::Image, "Image", sectionsLayout);
+
+    sectionsLayout->addStretch(1);
+    scrollArea->setWidget(scrollContent);
+    outerLayout->addWidget(scrollArea, 1);
+    outerLayout->addWidget(m_convertButton);
+
     connect(m_convertButton, &QPushButton::clicked, this, &FormatPanel::convertRequested);
 }
-void FormatPanel::addSection(const QString& title, const QStringList& formats) {
-    auto* separator = new QListWidgetItem(title.toUpper());
-    separator->setFlags(Qt::NoItemFlags);
-    separator->setForeground(Qt::gray);
-    m_formatList->addItem(separator);
+void FormatPanel::addSection(FileCategory _category, const QString& _title, QVBoxLayout* _parentLayout) {
+    auto* section = new CollapsibleSection(_title, this);
+    auto* list = new QListWidget(this);
+    list->setFrameShape(QFrame::NoFrame);
+    list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    for (const QString& fmt : formats)
-    {
+    for (const QString& fmt : ConversionRules::availableFormats(_category)) {
         auto* item = new QListWidgetItem(" " + fmt);
         item->setData(Qt::UserRole, fmt);
-        m_formatList->addItem(item);
+        list->addItem(item);
     }
+
+    const int contentHeight = listContentHeight(list);
+    list->setFixedHeight(contentHeight);
+
+    auto* contentLayout = new QVBoxLayout();
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->addWidget(list);
+    section->setContentLayout(contentLayout);
+
+    connect(list, &QListWidget::itemClicked, this, &FormatPanel::onFormatClicked);
+
+    m_sections[_category] = section;
+    m_categoryLists[_category] = list;
+    _parentLayout->addWidget(section);
 }

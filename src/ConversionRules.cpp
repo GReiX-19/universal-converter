@@ -37,7 +37,7 @@ const QMap<QString, FileCategory> ConversionRules::s_extensionMap = {
 };
 
 const QMap<FileCategory, QStringList> ConversionRules::s_formatsMap = {
-    {FileCategory::Video, {"mp4", "avi", "mkv", "mov", "webm", "mpeg", "mp3", "wav", "flac"}},
+    {FileCategory::Video, {"mp4", "avi", "mkv", "mov", "webm", "mpeg"}},
     {FileCategory::Audio, {"mp3", "wav", "flac", "ogg", "aac", "m4a"}},
     {FileCategory::Image, {"jpg", "jpeg", "png", "webp", "bmp", "gif", "heic", "ico"}},
     {FileCategory::OnlineVideo, {"mp4", "webm", "mkv", "mp3", "wav", "flac"}},

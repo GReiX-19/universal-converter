@@ -1,10 +1,13 @@
 #pragma once
 
 #include "ConversionRules.hpp"
+#include "CollapsibleSection.hpp"
 
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
+#include <QVBoxLayout>
+#include <QMap>
 
 class FormatPanel : public QWidget
 {
@@ -30,9 +33,10 @@ private slots:
 
 private:
     void setupUI();
-    void addSection(const QString& _title, const QStringList& _formats);
+    void addSection(FileCategory _category, const QString& _title, QVBoxLayout* _parentLayout);
 
 private:
-    QListWidget* m_formatList;
+    QMap<FileCategory, CollapsibleSection*> m_sections;
+    QMap<FileCategory, QListWidget*> m_categoryLists;
     QPushButton* m_convertButton;
 };
