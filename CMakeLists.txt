@@ -24,6 +24,7 @@ qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     src/ConversionRules.cpp
     src/DependencyChecker.cpp
     src/Downloader.cpp
+    src/CollapsibleSection.cpp
     resources/resources.qrc
 )
 
