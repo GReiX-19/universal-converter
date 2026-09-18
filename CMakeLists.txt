@@ -14,6 +14,8 @@ if (WIN32)
     set(GUI_TYPE "WIN32")
 endif()
 
+qt_add_resources(APP_RESOURCES resources/resources.qrc)
+
 qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     src/main.cpp
     src/MainWindow.cpp
@@ -25,7 +27,7 @@ qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     src/DependencyChecker.cpp
     src/Downloader.cpp
     src/CollapsibleSection.cpp
-    resources/resources.qrc
+    ${APP_RESOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)

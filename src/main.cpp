@@ -1,9 +1,12 @@
 #include <QApplication>
 #include <QMessageBox>
+#include <QGuiApplication>
+#include <QFile>
 
 #include "MainWindow.hpp"
 
 int main(int argc, char* argv[]) {
+    QGuiApplication::setDesktopFileName("UniversalConverter");
     QApplication app(argc, argv);
 
     QCoreApplication::setApplicationName("UniversalConverter");
@@ -17,6 +20,12 @@ int main(int argc, char* argv[]) {
     appIcon.addFile(":/icons/icons/universal-converter-icon-256.png");
 
     app.setWindowIcon(appIcon);
+
+    QFile styleFile(":/styles/style.qss");
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream stream(&styleFile);
+        qApp->setStyleSheet(stream.readAll());
+    }
 
     auto statuses = DependencyChecker::checkAll();
 
