@@ -5,6 +5,7 @@
         <file>icons/universal-converter-icon-48.png</file>
         <file>icons/universal-converter-icon-128.png</file>
         <file>icons/universal-converter-icon-256.png</file>
+        <file>icons/folderIcon.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>style.qss</file>

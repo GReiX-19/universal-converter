@@ -29,7 +29,6 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     auto* name = new QLabel(_entry.fileName, widget);
     auto* progress = new QProgressBar(widget);
 
-    name->setStyleSheet("font-size: 12px;");
     name->setMinimumWidth(0);
 
     const QFontMetrics metrics(name->font());
@@ -57,11 +56,12 @@ void OutputPanel::addEntry(const OutputEntry& _entry) {
     infoCol->setSpacing(4);
 
     auto* statusLabel = new QLabel("...", widget);
-    statusLabel->setStyleSheet("font-size: 14px; color: gray;");
+    statusLabel->setStyleSheet("color: gray;");
 
     const QString outputPath = _entry.outputPath;
-    auto* openButton = new QPushButton("📂", widget);
-    openButton->setFixedSize(28, 28);
+    auto* openButton = new QPushButton(widget);
+    openButton->setIcon(QIcon(":/icons/icons/folderIcon.png"));
+    openButton->setFixedSize(20, 20);
     openButton->setToolTip("Show in folder");
 
     connect(openButton, &QPushButton::clicked, this, [outputPath]() {
@@ -99,7 +99,7 @@ void OutputPanel::onTaskFinished(const QString& _fileName, bool _success) {
         }
         else {
             label->setText("✗");
-            label->setStyleSheet("font-size: 14px; color: green;");
+            label->setStyleSheet("font-size: 14px; color: red;");
         }
     }
 
@@ -116,7 +116,6 @@ void OutputPanel::setupUI() {
     layout->setSpacing(8);
 
     auto* title = new QLabel("Result", this);
-    title->setStyleSheet("font-weight: 500; color: gray;");
     title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
 

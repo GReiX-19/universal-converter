@@ -92,7 +92,6 @@ void FormatPanel::setupUI() {
     outerLayout->setSpacing(8);
 
     auto* title = new QLabel("Format", this);
-    title->setStyleSheet("font-weight: 500; color: gray;");
     title->setAlignment(Qt::AlignCenter);
     outerLayout->addWidget(title);
 
