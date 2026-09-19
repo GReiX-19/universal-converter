@@ -1,12 +1,3 @@
-/* ============================================================
-   universal-converter — application stylesheet
-   Apply via qApp->setStyleSheet(...) in main(), loaded from
-   a .qrc resource (":/styles/style.qss").
-
-   Accent color used throughout: #3daee9
-   Change every occurrence of #3daee9 to re-brand.
-   ============================================================ */
-
 /* ---- Base ---- */
 QWidget {
     background-color: #2b2e33;
@@ -80,6 +71,17 @@ QPushButton[class="primary"]:hover {
     background-color: #57bbee;
 }
 
+/* ---- Collapsible section headers ---- */
+QToolButton {
+    border: none;
+    font-weight: 500;
+}
+
+QToolButton[highlighted="true"] {
+    font-weight: 600;
+    color: #3daee9;
+}
+
 /* ---- Labels ---- */
 QLabel {
     background: transparent;
@@ -106,32 +108,6 @@ QLineEdit:focus {
 
 QLineEdit:disabled {
     color: #6a6e75;
-}
-
-/* ---- Combo boxes (format selection) ---- */
-QComboBox {
-    background-color: #1f2226;
-    border: 1px solid #3a3d42;
-    border-radius: 4px;
-    padding: 4px 8px;
-    min-height: 22px;
-}
-
-QComboBox:hover {
-    border-color: #3daee9;
-}
-
-QComboBox::drop-down {
-    border: none;
-    width: 20px;
-}
-
-QComboBox QAbstractItemView {
-    background-color: #1f2226;
-    border: 1px solid #3a3d42;
-    selection-background-color: #3daee9;
-    selection-color: #0d1114;
-    outline: none;
 }
 
 /* ---- List widget (file queue) ---- */
@@ -170,32 +146,6 @@ QProgressBar {
 QProgressBar::chunk {
     background-color: #3daee9;
     border-radius: 3px;
-}
-
-/* ---- Checkboxes / radio buttons ---- */
-QCheckBox, QRadioButton {
-    spacing: 8px;
-    background: transparent;
-}
-
-QCheckBox::indicator, QRadioButton::indicator {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #4a4e55;
-    background-color: #1f2226;
-}
-
-QCheckBox::indicator {
-    border-radius: 3px;
-}
-
-QRadioButton::indicator {
-    border-radius: 8px;
-}
-
-QCheckBox::indicator:checked, QRadioButton::indicator:checked {
-    background-color: #3daee9;
-    border-color: #3daee9;
 }
 
 /* ---- Scrollbars ---- */
@@ -245,29 +195,4 @@ QToolTip {
     border: 1px solid #3daee9;
     padding: 4px 6px;
     border-radius: 3px;
-}
-
-/* ---- Menu bar / menus (if you add one) ---- */
-QMenuBar {
-    background-color: #23262b;
-    color: #e6e6e6;
-}
-
-QMenuBar::item:selected {
-    background-color: #383c42;
-}
-
-QMenu {
-    background-color: #2b2e33;
-    border: 1px solid #3a3d42;
-}
-
-QMenu::item:selected {
-    background-color: #33465a;
-}
-
-/* ---- Status bar ---- */
-QStatusBar {
-    background-color: #23262b;
-    color: #9a9ea5;
 }

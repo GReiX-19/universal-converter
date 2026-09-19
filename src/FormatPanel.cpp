@@ -42,7 +42,7 @@ void FormatPanel::updateCompatibility(const QStringList& _files) {
             );
 
             item->setFlags(compatible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
-            item->setForeground(compatible ? qApp->palette().text() : qApp->palette().mid());
+            item->setForeground(compatible ? QColor("#3daee9") : QColor("#e6e6e6"));
             anyCompatible = anyCompatible or compatible;
         }
 
@@ -56,7 +56,7 @@ void FormatPanel::resetCompatibility() {
             auto* item = list->item(i);
 
             item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-            item->setForeground(qApp->palette().text());
+            item->setForeground(QColor("#e6e6e6"));
         }
     }
 

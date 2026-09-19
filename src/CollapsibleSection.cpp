@@ -4,6 +4,7 @@
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
 #include <QApplication>
+#include <QStyle>
 
 namespace {
     constexpr qint32 ANIMATION_DURATION_MS = 400;
@@ -19,7 +20,6 @@ CollapsibleSection::CollapsibleSection(const QString& _title, QWidget* _parent)
     m_headerButton->setCheckable(true);
     m_headerButton->setArrowType(Qt::RightArrow);
     m_headerButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_headerButton->setStyleSheet("QToolButton { border: none; font-weight: 500; }");
 
     m_contentArea->setMinimumHeight(0);
     m_contentArea->setMaximumHeight(0);
@@ -72,11 +72,9 @@ void CollapsibleSection::setExpanded(bool _expanded, bool _animate) {
 }
 
 void CollapsibleSection::setHightlighted(bool _highlighted) {
-    QPalette pal = qApp->palette();
-    const QString color = _highlighted ? pal.text().color().name() : pal.mid().color().name();
-    const QString weight = _highlighted ? "600" : "500";
-
-    m_headerButton->setStyleSheet(QString("QToolButton { border: none; font-weight: %1; color: %2 }").arg(weight, color));
+    m_headerButton->setProperty("highlighted", _highlighted);
+    m_headerButton->style()->unpolish(m_headerButton);
+    m_headerButton->style()->polish(m_headerButton);
 }
 
 bool CollapsibleSection::isExpanded() const {
