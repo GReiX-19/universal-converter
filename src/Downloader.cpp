@@ -140,7 +140,7 @@ void Downloader::startNext() {
         << "--newline";
 
     if (isAudioFormat(m_currentTask.format)) {
-        args << "--extract-audio" << "--audio-format" << m_currentTask.format.toLower();
+        args << "--extract-audio" << "--audio-format" << m_currentTask.format.toLower() << "--embed-thumbnail";
     }
     else {
         args << "--recode-video" << m_currentTask.format.toLower();
